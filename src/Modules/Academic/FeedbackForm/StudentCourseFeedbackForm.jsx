@@ -54,7 +54,10 @@ export default function StudentFeedback() {
         res.data.questions.forEach((q) => {
           initAnswers[q.id] = {};
           res.data.courses.forEach((c) => {
-            initAnswers[q.id][c.course_id] = { option_id: null, text_answer: "" };
+            initAnswers[q.id][c.course_id] = {
+              option_id: null,
+              text_answer: "",
+            };
           });
         });
         setAnswers(initAnswers);
@@ -155,12 +158,12 @@ export default function StudentFeedback() {
               section: q.section,
             });
           }
-        })
+        }),
       );
       await axios.post(
         studentSubmitRoute,
         { responses },
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
       showNotification({
         title: "Success",
@@ -182,7 +185,12 @@ export default function StudentFeedback() {
   return (
     <Card>
       <Text size="xl" weight={600}>
-        {sec.label} {sec.required && <Text component="span" color="red">*</Text>}
+        {sec.label}{" "}
+        {sec.required && (
+          <Text component="span" color="red">
+            *
+          </Text>
+        )}
       </Text>
       <Progress value={progress} mt="md" mb="lg" />
 
@@ -200,14 +208,18 @@ export default function StudentFeedback() {
             <thead>
               <tr>
                 <th>Course / Instructor</th>
-                {q.options.length > 0
-                  ? q.options.map((o) => <th key={o.id}>{o.text}</th>)
-                  : <th>Your Feedback</th>}
+                {q.options.length > 0 ? (
+                  q.options.map((o) => <th key={o.id}>{o.text}</th>)
+                ) : (
+                  <th>Your Feedback</th>
+                )}
               </tr>
             </thead>
             <tbody>
               {courses.map((c) => {
-                const label = `${c.code} - ${c.name}` + (c.instructor_name ? ` (${c.instructor_name})` : "");
+                const label =
+                  `${c.code} - ${c.name}` +
+                  (c.instructor_name ? ` (${c.instructor_name})` : "");
                 return (
                   <tr key={c.course_id}>
                     <td>{label}</td>
@@ -215,7 +227,9 @@ export default function StudentFeedback() {
                       q.options.map((o) => (
                         <td key={o.id}>
                           <Radio
-                            checked={answers[q.id][c.course_id].option_id === o.id}
+                            checked={
+                              answers[q.id][c.course_id].option_id === o.id
+                            }
                             onChange={() => setOption(q.id, c.course_id, o.id)}
                           />
                         </td>

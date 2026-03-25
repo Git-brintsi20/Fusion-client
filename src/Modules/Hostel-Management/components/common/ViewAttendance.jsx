@@ -19,9 +19,8 @@ import {
   IconSearch,
   IconFileReport,
 } from "@tabler/icons-react";
-import axios from "axios";
 import { useState } from "react";
-import { view_attendance } from "../../../../routes/hostelManagementRoutes";
+import { studentService } from "../../services";
 
 export default function ViewAttendanceComponent() {
   const [year, setYear] = useState(null);
@@ -47,26 +46,14 @@ export default function ViewAttendanceComponent() {
   ];
 
   const handleFetchAttendance = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Please login again");
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
     try {
-      const response = await axios.get(
-        `${view_attendance}?year=${year}&month=${month}`,
-        {
-          headers: { Authorization: `Token ${token}` },
-          responseType: "blob",
-        },
-      );
+      const response = await studentService.viewAttendance(year, month);
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
+        type: response.headers["content-type"] || "application/octet-stream",
       });
 
       const fileUrl = URL.createObjectURL(blob);
@@ -81,14 +68,6 @@ export default function ViewAttendanceComponent() {
       if (err.response) {
         if (err.response.status === 404) {
           errorMessage = "Attendance record not found";
-        }
-        if (error.response.data instanceof Blob) {
-          try {
-            const text = await err.response.data.text();
-            errorMessage = text || errorMessage;
-          } catch (e) {
-            console.error("Error reading error message:", e);
-          }
         }
       }
 

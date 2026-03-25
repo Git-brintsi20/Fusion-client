@@ -11,37 +11,23 @@ import {
   Box,
   Divider,
 } from "@mantine/core";
-import axios from "axios";
-import FineCard from "../../components/students/FineCard";
-import { fine_show } from "../../../../routes/hostelManagementRoutes"; // Adjust this import path if necessary
+import FineCard from "../../components/cards/FineCard";
+import { studentService } from "../../services";
 
 export default function Fines() {
   const [fines, setFines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem("authToken"); // Get the auth token from local storage
 
   const fetchFines = async () => {
-    if (!token) {
-      setError("Authentication token not found. Please log in again.");
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-
-      // Fetch fines from the backend
-      const response = await axios.get(fine_show, {
-        headers: { Authorization: `Token ${token}` },
-      });
+      const response = await studentService.getStudentFines();
 
       if (response.data.student_fines) {
         setFines(response.data.student_fines);
-      }
-      // ✅ Handle case when no fines are imposed
-      else if (response.data.message === "There is no fine imposed on you.") {
-        setFines([]); // No fines to display
+      } else if (response.data.message === "There is no fine imposed on you.") {
+        setFines([]);
       } else {
         setError("Unexpected response from the server.");
       }
@@ -58,7 +44,7 @@ export default function Fines() {
   };
 
   useEffect(() => {
-    fetchFines(); // Fetch fines on component mount
+    fetchFines();
   }, []);
 
   if (loading) {

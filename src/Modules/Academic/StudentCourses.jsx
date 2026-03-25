@@ -23,24 +23,78 @@ import {
 } from "../../routes/academicRoutes";
 
 const semesterOptions = [
-  { value: JSON.stringify({ no: 1, type: "Odd Semester" }), label: "Semester 1 (Odd)" },
-  { value: JSON.stringify({ no: 2, type: "Even Semester" }), label: "Semester 2 (Even)" },
-  { value: JSON.stringify({ no: 2, type: "Summer Semester" }), label: "Summer Term 1" },
-  { value: JSON.stringify({ no: 3, type: "Odd Semester" }), label: "Semester 3 (Odd)" },
-  { value: JSON.stringify({ no: 4, type: "Even Semester" }), label: "Semester 4 (Even)" },
-  { value: JSON.stringify({ no: 4, type: "Summer Semester" }), label: "Summer Term 2" },
-  { value: JSON.stringify({ no: 5, type: "Odd Semester" }), label: "Semester 5 (Odd)" },
-  { value: JSON.stringify({ no: 6, type: "Even Semester" }), label: "Semester 6 (Even)" },
-  { value: JSON.stringify({ no: 6, type: "Summer Semester" }), label: "Summer Term 3" },
-  { value: JSON.stringify({ no: 7, type: "Odd Semester" }), label: "Semester 7 (Odd)" },
-  { value: JSON.stringify({ no: 8, type: "Even Semester" }), label: "Semester 8 (Even)" },
-  { value: JSON.stringify({ no: 8, type: "Summer Semester" }), label: "Summer Term 4" },
-  { value: JSON.stringify({ no: 9, type: "Odd Semester" }), label: "Semester 9 (Odd)" },
-  { value: JSON.stringify({ no: 10, type: "Even Semester" }), label: "Semester 10 (Even)" },
-  { value: JSON.stringify({ no: 10, type: "Summer Semester" }), label: "Summer Term 5" },
-  { value: JSON.stringify({ no: 11, type: "Odd Semester" }), label: "Semester 11 (Odd)" },
-  { value: JSON.stringify({ no: 12, type: "Even Semester" }), label: "Semester 12 (Even)" },
-  { value: JSON.stringify({ no: 12, type: "Summer Semester" }), label: "Summer Term 6" },
+  {
+    value: JSON.stringify({ no: 1, type: "Odd Semester" }),
+    label: "Semester 1 (Odd)",
+  },
+  {
+    value: JSON.stringify({ no: 2, type: "Even Semester" }),
+    label: "Semester 2 (Even)",
+  },
+  {
+    value: JSON.stringify({ no: 2, type: "Summer Semester" }),
+    label: "Summer Term 1",
+  },
+  {
+    value: JSON.stringify({ no: 3, type: "Odd Semester" }),
+    label: "Semester 3 (Odd)",
+  },
+  {
+    value: JSON.stringify({ no: 4, type: "Even Semester" }),
+    label: "Semester 4 (Even)",
+  },
+  {
+    value: JSON.stringify({ no: 4, type: "Summer Semester" }),
+    label: "Summer Term 2",
+  },
+  {
+    value: JSON.stringify({ no: 5, type: "Odd Semester" }),
+    label: "Semester 5 (Odd)",
+  },
+  {
+    value: JSON.stringify({ no: 6, type: "Even Semester" }),
+    label: "Semester 6 (Even)",
+  },
+  {
+    value: JSON.stringify({ no: 6, type: "Summer Semester" }),
+    label: "Summer Term 3",
+  },
+  {
+    value: JSON.stringify({ no: 7, type: "Odd Semester" }),
+    label: "Semester 7 (Odd)",
+  },
+  {
+    value: JSON.stringify({ no: 8, type: "Even Semester" }),
+    label: "Semester 8 (Even)",
+  },
+  {
+    value: JSON.stringify({ no: 8, type: "Summer Semester" }),
+    label: "Summer Term 4",
+  },
+  {
+    value: JSON.stringify({ no: 9, type: "Odd Semester" }),
+    label: "Semester 9 (Odd)",
+  },
+  {
+    value: JSON.stringify({ no: 10, type: "Even Semester" }),
+    label: "Semester 10 (Even)",
+  },
+  {
+    value: JSON.stringify({ no: 10, type: "Summer Semester" }),
+    label: "Summer Term 5",
+  },
+  {
+    value: JSON.stringify({ no: 11, type: "Odd Semester" }),
+    label: "Semester 11 (Odd)",
+  },
+  {
+    value: JSON.stringify({ no: 12, type: "Even Semester" }),
+    label: "Semester 12 (Even)",
+  },
+  {
+    value: JSON.stringify({ no: 12, type: "Summer Semester" }),
+    label: "Summer Term 6",
+  },
 ];
 
 export default function StudentCourses() {
@@ -56,7 +110,7 @@ export default function StudentCourses() {
   const [slotCourses, setSlotCourses] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [selectedSemester, setSelectedSemester] = useState(
-    JSON.parse(semesterOptions[0].value)
+    JSON.parse(semesterOptions[0].value),
   );
   const [newCourse, setNewCourse] = useState({
     semester_id: null,
@@ -96,14 +150,14 @@ export default function StudentCourses() {
       const { data } = await axios.post(
         getStudentCourseRoute,
         { rollno: rollNo },
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
       setStudentData(data);
 
       if (data.current_semester) {
         setSelectedSemester({
           no: data.current_semester.semester_no,
-          type: data.current_semester.semester_type
+          type: data.current_semester.semester_type,
         });
       }
     } catch (err) {
@@ -130,7 +184,7 @@ export default function StudentCourses() {
       await axios.post(
         dropStudentCourseRoute,
         { id: courseToDrop, roll_no: rollNo },
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
       showNotification({
         title: "Course Dropped",
@@ -215,31 +269,31 @@ export default function StudentCourses() {
     clearError();
     if (!val) return;
     const semObj = JSON.parse(val);
-    
-  let semesterId = semObj.no;
-  if (studentData && studentData.semester_list) {
-    const found = studentData.semester_list.find(
-      (s) => s.semester_no == semObj.no
-    );
-    if (found) {
-      semesterId = found.id;
+
+    let semesterId = semObj.no;
+    if (studentData && studentData.semester_list) {
+      const found = studentData.semester_list.find(
+        (s) => s.semester_no == semObj.no,
+      );
+      if (found) {
+        semesterId = found.id;
+      }
     }
-  }
     setNewCourse((p) => ({
-    ...p,
-    semester_id: semesterId,
-    semester_no: semObj.no, 
-    semester_type: semObj.type,
-    courseslot_id: null,
-    course_id: null,
-  }));
+      ...p,
+      semester_id: semesterId,
+      semester_no: semObj.no,
+      semester_type: semObj.type,
+      courseslot_id: null,
+      course_id: null,
+    }));
     setSlotCourses([]);
     setSemSlots([]);
     const token = localStorage.getItem("authToken");
     try {
       const { data } = await axios.get(
         `${getCourseSlotsRoute}?semester_id=${semesterId}`,
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
       setSemSlots(data);
     } catch {
@@ -253,7 +307,7 @@ export default function StudentCourses() {
     try {
       const { data } = await axios.get(
         `${getCoursesRoute}?courseslot_id=${slotId}`,
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
       setSlotCourses(data);
     } catch {
@@ -265,7 +319,7 @@ export default function StudentCourses() {
     studentData?.details.filter(
       (c) =>
         c.sem === selectedSemester.no &&
-        c.semester_type === selectedSemester.type
+        c.semester_type === selectedSemester.type,
     ) || [];
   const totalCredits = filteredDetails.reduce((sum, c) => sum + c.credits, 0);
 
@@ -290,7 +344,10 @@ export default function StudentCourses() {
     "Replaced By":
       c.replaced_by && c.replaced_by.length > 0
         ? c.replaced_by
-            .map((r) => `${r.course_id.code} - ${r.course_id.name} (Sem ${r.semester_id.semester_no})`)
+            .map(
+              (r) =>
+                `${r.course_id.code} - ${r.course_id.name} (Sem ${r.semester_id.semester_no})`,
+            )
             .join(", ")
         : "NA",
     Actions: (
@@ -379,10 +436,13 @@ export default function StudentCourses() {
           placeholder="Select semester"
           data={semesterOptions}
           value={
-          newCourse.semester_no && newCourse.semester_type
-          ? JSON.stringify({ no: newCourse.semester_no, type: newCourse.semester_type })
-          : ""
-        }
+            newCourse.semester_no && newCourse.semester_type
+              ? JSON.stringify({
+                  no: newCourse.semester_no,
+                  type: newCourse.semester_type,
+                })
+              : ""
+          }
           onChange={handleSemesterSelect}
           mb="sm"
         />

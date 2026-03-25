@@ -21,12 +21,7 @@ import {
   IconRefresh,
 } from "@tabler/icons-react";
 import { useState } from "react";
-import axios from "axios";
-import {
-  download_hostel_allotment,
-  assign_roomsbywarden,
-  update_student_allotment,
-} from "../../../../routes/hostelManagementRoutes";
+import { wardenService } from "../../services";
 
 export default function AssignRoomsComponent() {
   const [files, setFiles] = useState([]);
@@ -72,12 +67,8 @@ export default function AssignRoomsComponent() {
   };
 
   const handleDownload = async () => {
-    const token = localStorage.getItem("authToken");
-
     try {
-      const response = await axios.get(download_hostel_allotment, {
-        headers: { Authorization: `Token ${token}` },
-      });
+      const response = await wardenService.downloadHostelAllotment();
 
       if (
         !response ||
@@ -90,13 +81,8 @@ export default function AssignRoomsComponent() {
 
       response.data.files.forEach(async (fileUrl, index) => {
         try {
-          const fileResponse = await axios.get(fileUrl, {
-            responseType: "blob",
-          });
-
-          const blob = new Blob([fileResponse.data], {
-            type: fileResponse.headers["content-type"],
-          });
+          const fileResponse = await fetch(fileUrl);
+          const blob = await fileResponse.blob();
           const url = window.URL.createObjectURL(blob);
 
           const link = document.createElement("a");
@@ -124,7 +110,6 @@ export default function AssignRoomsComponent() {
     }
 
     setUploading(true);
-    const token = localStorage.getItem("authToken");
     const successfulUploads = [];
     const failedUploads = [];
 
@@ -135,12 +120,7 @@ export default function AssignRoomsComponent() {
         formData.append("selectedBatch", fileObj.batch);
 
         try {
-          const response = await axios.post(assign_roomsbywarden, formData, {
-            headers: {
-              Authorization: `Token ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          });
+          const response = await wardenService.assignRoomsByWarden(formData);
 
           if (response.status === 200) {
             successfulUploads.push({
@@ -181,11 +161,7 @@ export default function AssignRoomsComponent() {
 
     try {
       setAlloting(true);
-      await axios.get(update_student_allotment, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
+      await wardenService.updateStudentAllotment();
       setAlloting(false);
     } catch (error) {
       console.error("Error in updating process:", error);
@@ -196,13 +172,8 @@ export default function AssignRoomsComponent() {
 
   const refreshAllotment = async () => {
     setAlloting(true);
-    const token = localStorage.getItem("authToken");
     try {
-      await axios.get(update_student_allotment, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
+      await wardenService.updateStudentAllotment();
     } catch (error) {
       console.error("Error in updating process:", error);
       alert("An error occurred during the updating process. Please try again.");

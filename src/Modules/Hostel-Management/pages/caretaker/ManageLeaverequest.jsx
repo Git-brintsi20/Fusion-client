@@ -15,11 +15,7 @@ import {
   Tabs,
 } from "@mantine/core";
 import { CalendarBlank } from "@phosphor-icons/react";
-import axios from "axios";
-import {
-  show_leave_request,
-  update_leave_status,
-} from "../../../../routes/hostelManagementRoutes";
+import { caretakerService } from "../../services";
 
 export default function ManageLeaveRequest() {
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -28,17 +24,8 @@ export default function ManageLeaveRequest() {
   const [activeTab, setActiveTab] = useState("active");
 
   const fetchLeaveRequests = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Authentication token not found. Please login again.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await axios.get(show_leave_request, {
-        headers: { Authorization: `Token ${token}` },
-      });
+      const response = await caretakerService.getLeaveRequests();
       setLeaveRequests(Array.isArray(response.data) ? response.data : []);
       setError(null);
     } catch (e) {
@@ -57,24 +44,12 @@ export default function ManageLeaveRequest() {
   }, []);
 
   const handleStatusUpdate = async (id, status, remark = "") => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Authentication token not found. Please login again.");
-      return;
-    }
-
     try {
-      const response = await axios.post(
-        update_leave_status,
-        {
-          leave_id: id,
-          status,
-          remark,
-        },
-        {
-          headers: { Authorization: `Token ${token}` },
-        },
-      );
+      const response = await caretakerService.updateLeaveStatus({
+        leave_id: id,
+        status,
+        remark,
+      });
       if (response.data.status === "success") {
         setLeaveRequests(
           leaveRequests.map((request) =>

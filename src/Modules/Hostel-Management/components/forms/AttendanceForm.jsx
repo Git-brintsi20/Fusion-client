@@ -11,10 +11,7 @@ import {
 } from "@mantine/core";
 import { Upload } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
-import {
-  viewHostel,
-  upload_attendance,
-} from "../../../../routes/hostelManagementRoutes";
+import { caretakerService, adminService } from "../../services";
 
 export default function UploadAttendanceComponent() {
   const [file, setFile] = useState(null);
@@ -28,19 +25,10 @@ export default function UploadAttendanceComponent() {
   useEffect(() => {
     const fetchHostels = async () => {
       try {
-        const response = await fetch(viewHostel, {
-          headers: {
-            Authorization: `Token ${localStorage.getItem("authToken")}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) throw new Error("Network response was not ok");
-
-        const data = await response.json();
-        setHostelsData(data.hostel_details);
-        if (data.hostel_details.length > 0) {
-          setSelectedHall(data.hostel_details[0].hall_id);
+        const response = await adminService.viewHostel();
+        setHostelsData(response.data.hostel_details);
+        if (response.data.hostel_details.length > 0) {
+          setSelectedHall(response.data.hostel_details[0].hall_id);
         }
         setLoading(false);
       } catch (error) {
@@ -90,15 +78,7 @@ export default function UploadAttendanceComponent() {
     formData.append("file", file);
 
     try {
-      const response = await fetch(upload_attendance, {
-        method: "POST",
-        headers: {
-          Authorization: `Token ${localStorage.getItem("authToken")}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Upload failed");
+      await caretakerService.uploadAttendance(formData);
 
       setFile(null);
       setYear(null);

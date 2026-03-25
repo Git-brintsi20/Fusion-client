@@ -11,8 +11,7 @@ import {
   Alert,
 } from "@mantine/core";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
-import axios from "axios";
-import { requestLeave } from "../../../../routes/hostelManagementRoutes";
+import { studentService } from "../../services";
 
 export default function LeaveForm() {
   const [formData, setFormData] = useState({
@@ -48,15 +47,6 @@ export default function LeaveForm() {
     setIsSubmitting(true);
     setSuccessMessage("");
 
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setErrors({
-        general: "Authentication token not found. Please log in again.",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
     const data = {
       student_name: formData.studentName,
       roll_num: formData.rollNumber,
@@ -67,12 +57,7 @@ export default function LeaveForm() {
     };
 
     try {
-      const response = await axios.post(requestLeave, data, {
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await studentService.requestLeave(data);
 
       if (response.data.message) {
         setSuccessMessage(response.data.message);

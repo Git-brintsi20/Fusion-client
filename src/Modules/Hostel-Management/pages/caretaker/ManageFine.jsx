@@ -12,11 +12,7 @@ import {
   Box,
   Divider,
 } from "@mantine/core";
-import axios from "axios";
-import {
-  fetch_fines_url,
-  update_fine_status_url,
-} from "../../../../routes/hostelManagementRoutes";
+import { caretakerService } from "../../services";
 
 export default function ManageFines() {
   const [fines, setFines] = useState([]);
@@ -24,17 +20,8 @@ export default function ManageFines() {
   const [error, setError] = useState(null);
 
   const fetchFines = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Authentication token not found. Please login again.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await axios.get(fetch_fines_url, {
-        headers: { Authorization: `Token ${token}` },
-      });
+      const response = await caretakerService.getFines();
       setFines(Array.isArray(response.data?.fines) ? response.data.fines : []);
       console.log(fines);
       setError(null);
@@ -61,18 +48,8 @@ export default function ManageFines() {
       return;
     }
 
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Authentication token not found. Please login again.");
-      return;
-    }
-
     try {
-      const response = await axios.post(
-        update_fine_status_url(id),
-        { status },
-        { headers: { Authorization: `Token ${token}` } },
-      );
+      const response = await caretakerService.updateFineStatus(id, status);
 
       if (response.status === 200) {
         setFines((prevFines) =>

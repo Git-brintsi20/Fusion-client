@@ -53,14 +53,27 @@ const CourseRow = memo(
     return (
       <tr>
         {isFirst && (
-          <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }} rowSpan={slotRowSpan}>
+          <td
+            style={{
+              border: "1px solid #ccc",
+              padding: "8px",
+              textAlign: "center",
+            }}
+            rowSpan={slotRowSpan}
+          >
             {slotName} <br />({slotType}, Sem: {semester})
           </td>
         )}
         <td style={{ border: "1px solid #ccc", padding: "8px" }}>
           {course.code}: {course.name} ({course.credits} credits)
         </td>
-        <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+        <td
+          style={{
+            border: "1px solid #ccc",
+            padding: "8px",
+            textAlign: "center",
+          }}
+        >
           {readOnly ? (
             <Text>{priorityValue || "Not Selected"}</Text>
           ) : (
@@ -88,8 +101,9 @@ const CourseRow = memo(
   (prevProps, nextProps) =>
     prevProps.priorityValue === nextProps.priorityValue &&
     prevProps.rowData === nextProps.rowData &&
-    JSON.stringify(prevProps.slotPriorities) === JSON.stringify(nextProps.slotPriorities) &&
-    prevProps.readOnly === nextProps.readOnly
+    JSON.stringify(prevProps.slotPriorities) ===
+      JSON.stringify(nextProps.slotPriorities) &&
+    prevProps.readOnly === nextProps.readOnly,
 );
 
 const BacklogCourseRow = ({
@@ -103,10 +117,10 @@ const BacklogCourseRow = ({
   readOnly = false,
 }) => {
   const selectedCourse = slot.course_choices.find(
-    (c) => c.id.toString() === selectedCourseId
+    (c) => c.id.toString() === selectedCourseId,
   );
   const selectedPrevReg = slot.prev_registrations.find(
-    (r) => r.id.toString() === selectedPrevRegId
+    (r) => r.id.toString() === selectedPrevRegId,
   );
 
   return (
@@ -125,7 +139,7 @@ const BacklogCourseRow = ({
           <select
             value={selectedCourseId || ""}
             onChange={(e) => onSelectCourse(slot.sno, e.target.value)}
-            style={{width:'100%'}}
+            style={{ width: "100%" }}
           >
             <option value="">Select Course</option>
             {slot.course_choices.map((course) => (
@@ -151,7 +165,7 @@ const BacklogCourseRow = ({
           <select
             value={selectedPrevRegId || ""}
             onChange={(e) => onSelectPrevReg(slot.sno, e.target.value)}
-            style={{width:'100%'}}
+            style={{ width: "100%" }}
           >
             <option value="">Select Previous Registration</option>
             {slot.prev_registrations.map((reg) => (
@@ -191,14 +205,16 @@ function PreRegistration() {
       return;
     }
     try {
-      setLoading(true)
+      setLoading(true);
       const response = await axios.get(preCourseRegistrationRoute, {
         headers: { Authorization: `Token ${token}` },
       });
 
       if (response.data.message) {
         setAlreadyRegistered(true);
-        setCoursesData(response.data.data.filter((slot)=> !slot.slot_name.startsWith('BL')))
+        setCoursesData(
+          response.data.data.filter((slot) => !slot.slot_name.startsWith("BL")),
+        );
         setBacklogSlotsReg(response.data.backlog_data);
         const newPriorities = {};
         response.data.data.forEach((slot) => {
@@ -212,8 +228,12 @@ function PreRegistration() {
         });
         setPriorities(newPriorities);
       } else {
-        setCoursesData(response.data.filter((slot) => slot.slot_type !== "Backlog"));
-        setBacklogSlots(response.data.filter((slot) => slot.slot_type === "Backlog"));
+        setCoursesData(
+          response.data.filter((slot) => slot.slot_type !== "Backlog"),
+        );
+        setBacklogSlots(
+          response.data.filter((slot) => slot.slot_type === "Backlog"),
+        );
       }
     } catch (fetchError) {
       setError(fetchError?.response?.data?.error);
@@ -260,7 +280,8 @@ function PreRegistration() {
     const allCoursesValid = coursesData.every((slot) => {
       const slotPriorities = priorities[slot.sno] || {};
       return slot.course_choices.every(
-        (course) => slotPriorities[course.id] && slotPriorities[course.id] !== ""
+        (course) =>
+          slotPriorities[course.id] && slotPriorities[course.id] !== "",
       );
     });
 
@@ -294,7 +315,10 @@ function PreRegistration() {
     });
 
     const backlogRegistrations = Object.entries(backlogSelections)
-      .filter(([_, { courseId, prevRegistrationId }]) => courseId && prevRegistrationId)
+      .filter(
+        ([_, { courseId, prevRegistrationId }]) =>
+          courseId && prevRegistrationId,
+      )
       .map(([slotId, { courseId, prevRegistrationId }]) => ({
         slot_id: parseInt(slotId),
         course_id: parseInt(courseId),
@@ -314,7 +338,7 @@ function PreRegistration() {
             "Content-Type": "application/json",
             Authorization: `Token ${token}`,
           },
-        }
+        },
       );
       if (response.status === 200 || response.status === 201) {
         fetchCourses();
@@ -344,8 +368,12 @@ function PreRegistration() {
     });
   });
 
-  const usedCourseIds = Object.values(backlogSelections).map((s) => s.courseId).filter(Boolean);
-  const usedPrevRegIds = Object.values(backlogSelections).map((s) => s.prevRegistrationId).filter(Boolean);
+  const usedCourseIds = Object.values(backlogSelections)
+    .map((s) => s.courseId)
+    .filter(Boolean);
+  const usedPrevRegIds = Object.values(backlogSelections)
+    .map((s) => s.prevRegistrationId)
+    .filter(Boolean);
 
   if (loading)
     return (
@@ -370,16 +398,23 @@ function PreRegistration() {
 
         {alreadyRegistered && (
           <Alert color="blue" title="Already Registered" mb="lg">
-            You have already completed pre-registration. Your courses with assigned priorities are shown below.
+            You have already completed pre-registration. Your courses with
+            assigned priorities are shown below.
           </Alert>
         )}
 
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th style={{ border: "1px solid #ccc", padding: "8px" }}>Slot Name</th>
-              <th style={{ border: "1px solid #ccc", padding: "8px" }}>Course</th>
-              <th style={{ border: "1px solid #ccc", padding: "8px" }}>Priority</th>
+              <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                Slot Name
+              </th>
+              <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                Course
+              </th>
+              <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                Priority
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -397,16 +432,29 @@ function PreRegistration() {
           </tbody>
         </table>
 
-
         {alreadyRegistered && backlogSlotsReg.length > 0 && (
           <>
-            <Text weight={600} mt="lg"><b>Backlog Registrations</b></Text>
-            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
+            <Text weight={600} mt="lg">
+              <b>Backlog Registrations</b>
+            </Text>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                marginTop: "0.5rem",
+              }}
+            >
               <thead>
                 <tr>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Slot</th>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Course</th>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Previous Registration</th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Slot
+                  </th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Course
+                  </th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Previous Registration
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -416,9 +464,13 @@ function PreRegistration() {
 
                   return (
                     <tr key={`backlog-${slot.sno}`}>
-                      <td style={{ border: "1px solid #ccc", padding: "8px" }}>{slot.slot_name}</td>
                       <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                        {course ? `${course.code} - ${course.name}` : "Not selected"}
+                        {slot.slot_name}
+                      </td>
+                      <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+                        {course
+                          ? `${course.code} - ${course.name}`
+                          : "Not selected"}
                       </td>
                       <td style={{ border: "1px solid #ccc", padding: "8px" }}>
                         {prev && prev.code
@@ -438,12 +490,24 @@ function PreRegistration() {
             <Text mt="xl" size="lg" weight={600} color="blue">
               Backlog Course Registration
             </Text>
-            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                marginTop: "1rem",
+              }}
+            >
               <thead>
                 <tr>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Slot</th>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Select Course</th>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Select Previous Registration</th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Slot
+                  </th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Select Course
+                  </th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Select Previous Registration
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -451,8 +515,12 @@ function PreRegistration() {
                   <BacklogCourseRow
                     key={slot.sno}
                     slot={slot}
-                    selectedCourseId={backlogSelections[slot.sno]?.courseId || ""}
-                    selectedPrevRegId={backlogSelections[slot.sno]?.prevRegistrationId || ""}
+                    selectedCourseId={
+                      backlogSelections[slot.sno]?.courseId || ""
+                    }
+                    selectedPrevRegId={
+                      backlogSelections[slot.sno]?.prevRegistrationId || ""
+                    }
                     onSelectCourse={handleBacklogCourseChange}
                     onSelectPrevReg={handleBacklogPrevRegChange}
                     usedCourseIds={usedCourseIds}
@@ -470,7 +538,7 @@ function PreRegistration() {
             mt="md"
             style={{ backgroundColor: "#3B82F6", color: "#fff" }}
             onClick={() => setConfirmModalOpen(true)}
-            disabled={!isFormComplete()||loading}
+            disabled={!isFormComplete() || loading}
           >
             Register
           </Button>
@@ -495,13 +563,27 @@ function PreRegistration() {
         title="Confirm Registration"
         size="xl"
       >
-        <Text weight={500} mb="sm"><b>Please review your selections before confirming:</b></Text>
-        <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
+        <Text weight={500} mb="sm">
+          <b>Please review your selections before confirming:</b>
+        </Text>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            marginTop: "0.5rem",
+          }}
+        >
           <thead>
             <tr>
-              <th style={{ border: "1px solid #ccc", padding: "8px" }}>Slot Name</th>
-              <th style={{ border: "1px solid #ccc", padding: "8px" }}>Course</th>
-              <th style={{ border: "1px solid #ccc", padding: "8px" }}>Priority</th>
+              <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                Slot Name
+              </th>
+              <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                Course
+              </th>
+              <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                Priority
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -511,7 +593,11 @@ function PreRegistration() {
                   {index === 0 && (
                     <td
                       rowSpan={slot.course_choices.length}
-                      style={{ border: "1px solid #ccc", padding: "8px", verticalAlign: "top" }}
+                      style={{
+                        border: "1px solid #ccc",
+                        padding: "8px",
+                        verticalAlign: "top",
+                      }}
                     >
                       {slot.slot_name}
                     </td>
@@ -519,40 +605,70 @@ function PreRegistration() {
                   <td style={{ border: "1px solid #ccc", padding: "8px" }}>
                     {course.code} - {course.name}
                   </td>
-                  <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+                  <td
+                    style={{
+                      border: "1px solid #ccc",
+                      padding: "8px",
+                      textAlign: "center",
+                    }}
+                  >
                     {priorities[slot.sno]?.[course.id] || "Not selected"}
                   </td>
                 </tr>
-              ))
+              )),
             )}
           </tbody>
         </table>
 
         {backlogSlots.length > 0 && (
           <>
-            <Text weight={600} mt="lg"><b>Backlog Registrations</b></Text>
-            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
+            <Text weight={600} mt="lg">
+              <b>Backlog Registrations</b>
+            </Text>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                marginTop: "0.5rem",
+              }}
+            >
               <thead>
                 <tr>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Slot</th>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Course</th>
-                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>Previous Registration</th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Slot
+                  </th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Course
+                  </th>
+                  <th style={{ border: "1px solid #ccc", padding: "8px" }}>
+                    Previous Registration
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {backlogSlots.map((slot) => {
                   const selection = backlogSelections[slot.sno];
-                  const selectedCourse = slot.course_choices.find((c) => c.id.toString() === selection?.courseId);
-                  const selectedPrev = slot.prev_registrations.find((r) => r.id.toString() === selection?.prevRegistrationId);
+                  const selectedCourse = slot.course_choices.find(
+                    (c) => c.id.toString() === selection?.courseId,
+                  );
+                  const selectedPrev = slot.prev_registrations.find(
+                    (r) => r.id.toString() === selection?.prevRegistrationId,
+                  );
 
                   return (
                     <tr key={`backlog-${slot.sno}`}>
-                      <td style={{ border: "1px solid #ccc", padding: "8px" }}>{slot.slot_name}</td>
                       <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                        {selectedCourse ? `${selectedCourse.code} - ${selectedCourse.name}` : "Not selected"}
+                        {slot.slot_name}
                       </td>
                       <td style={{ border: "1px solid #ccc", padding: "8px" }}>
-                        {selectedPrev ? `Semester ${selectedPrev.semester_id?.semester_no}` : "Not selected"}
+                        {selectedCourse
+                          ? `${selectedCourse.code} - ${selectedCourse.name}`
+                          : "Not selected"}
+                      </td>
+                      <td style={{ border: "1px solid #ccc", padding: "8px" }}>
+                        {selectedPrev
+                          ? `Semester ${selectedPrev.semester_id?.semester_no}`
+                          : "Not selected"}
                       </td>
                     </tr>
                   );

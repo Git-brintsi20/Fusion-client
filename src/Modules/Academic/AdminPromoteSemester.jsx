@@ -65,7 +65,7 @@ export default function AdminPromoteSemester() {
         .catch(() => setError("Failed to load students."))
         .finally(() => setLoadingStudents(false));
     },
-    [setStudents, setSelected]
+    [setStudents, setSelected],
   );
 
   // Reload students when batch changes
@@ -128,8 +128,10 @@ export default function AdminPromoteSemester() {
   }));
 
   return (
-    <Card style={{ position: 'relative' }}>
-      <LoadingOverlay visible={loadingBatches || loadingStudents || loadingApply} />
+    <Card style={{ position: "relative" }}>
+      <LoadingOverlay
+        visible={loadingBatches || loadingStudents || loadingApply}
+      />
 
       <Select
         label="Select Batch"
@@ -156,12 +158,18 @@ export default function AdminPromoteSemester() {
       )}
 
       {students.length > 0 && (
-        <>          
+        <>
           <Group mb="sm">
-            <Button onClick={selectAll} disabled={loadingStudents || loadingApply}>
+            <Button
+              onClick={selectAll}
+              disabled={loadingStudents || loadingApply}
+            >
               Select All
             </Button>
-            <Button onClick={deselectAll} disabled={loadingStudents || loadingApply}>
+            <Button
+              onClick={deselectAll}
+              disabled={loadingStudents || loadingApply}
+            >
               Deselect All
             </Button>
           </Group>
@@ -192,7 +200,10 @@ export default function AdminPromoteSemester() {
             </Table>
           </ScrollArea>
           <Group position="right" mt="md">
-            <Button onClick={submitChanges} disabled={toConfirm.length === 0 || loadingApply}>
+            <Button
+              onClick={submitChanges}
+              disabled={toConfirm.length === 0 || loadingApply}
+            >
               Promote Selected
             </Button>
           </Group>
@@ -226,7 +237,11 @@ export default function AdminPromoteSemester() {
           </Table>
         </ScrollArea>
         <Group position="right" mt="md">
-          <Button variant="outline" onClick={() => setModalOpen(false)} disabled={loadingApply}>
+          <Button
+            variant="outline"
+            onClick={() => setModalOpen(false)}
+            disabled={loadingApply}
+          >
             Cancel
           </Button>
           <Button color="red" onClick={confirmApply} loading={loadingApply}>

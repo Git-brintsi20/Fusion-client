@@ -36,9 +36,9 @@ function AcademicPage() {
   const role = useSelector((state) => state.user.role);
   const dispatch = useDispatch();
 
-  useEffect(()=>{
-    dispatch(setActiveTab_(tabItems?tabItems[activeTab].title:""))
-  },[])
+  useEffect(() => {
+    dispatch(setActiveTab_(tabItems ? tabItems[activeTab].title : ""));
+  }, []);
 
   let tabItems;
   let tabComponents;
@@ -55,10 +55,10 @@ function AcademicPage() {
       { title: "Replacement Allocation" },
       { title: "Add BL Courses" },
       { title: "Drop Courses" },
-      { title: "Student Dashboard"},
-      { title: "Feedback Responses"},
-      { title: "Batch/Branch Change"},
-      { title: "Promote Students"},
+      { title: "Student Dashboard" },
+      { title: "Feedback Responses" },
+      { title: "Batch/Branch Change" },
+      { title: "Promote Students" },
     ];
     tabComponents = [
       StudentCourses,
@@ -74,7 +74,7 @@ function AcademicPage() {
       AdminStudentDashboard,
       AdminFeedbackView,
       AdminBatchChange,
-      AdminPromoteSemester
+      AdminPromoteSemester,
     ];
   } else if (role === "student") {
     tabItems = [
@@ -103,10 +103,14 @@ function AcademicPage() {
     role === "Assistant Professor" ||
     role === "Professor"
   ) {
-    tabItems = [{ title: "View Roll List"},{title: "TA management"}, {title: "Course Feedback"}];
+    tabItems = [
+      { title: "View Roll List" },
+      { title: "TA management" },
+      { title: "Course Feedback" },
+    ];
     tabComponents = [ViewRollList, Faculty_TA_Dashboard, InstructorDashboard];
   } else {
-    tabItems = [{ title: "Registered Courses" },];
+    tabItems = [{ title: "Registered Courses" }];
     tabComponents = [RegisteredCourses];
   }
 

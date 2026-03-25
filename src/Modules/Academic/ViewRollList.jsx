@@ -50,7 +50,7 @@ function ViewRollList() {
         setFilteredCourses(assignedCourses);
       } catch (error) {
         setFetchError(
-          error.response?.data?.error || "Failed to fetch courses."
+          error.response?.data?.error || "Failed to fetch courses.",
         );
       }
     };
@@ -60,7 +60,7 @@ function ViewRollList() {
 
   // Function to check if courses have students of selected programme type
   const filterCoursesByProgrammeType = async (progType) => {
-    if (progType === 'All') {
+    if (progType === "All") {
       setFilteredCourses(allCourses);
       return;
     }
@@ -86,7 +86,7 @@ function ViewRollList() {
               Authorization: `Token ${token}`,
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         const students = response.data.students || response.data || [];
@@ -94,7 +94,10 @@ function ViewRollList() {
           coursesWithStudents.push(course);
         }
       } catch (error) {
-        console.error(`Error checking students for course ${course.course_code}:`, error);
+        console.error(
+          `Error checking students for course ${course.course_code}:`,
+          error,
+        );
         // If error, include the course to be safe
         coursesWithStudents.push(course);
       }
@@ -121,7 +124,7 @@ function ViewRollList() {
     courseId,
     courseCode,
     semesterType,
-    academicYear
+    academicYear,
   ) => {
     const token = localStorage.getItem("authToken");
 
@@ -139,33 +142,31 @@ function ViewRollList() {
         semester_type: semesterType,
         academic_year: academicYear,
       };
-      
-      if (programmeType && programmeType !== 'All') {
+
+      if (programmeType && programmeType !== "All") {
         payload.programme_type = programmeType;
       }
 
-      const response = await axios.post(
-        generatexlsheet,
-        payload,
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-          responseType: "blob",
-        }
-      );
+      const response = await axios.post(generatexlsheet, payload, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+        responseType: "blob",
+      });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      const fileProgTypeName = programmeType && programmeType !== 'All' ? `_${programmeType}` : '';
+      const fileProgTypeName =
+        programmeType && programmeType !== "All" ? `_${programmeType}` : "";
       link.setAttribute("download", `${courseCode}${fileProgTypeName}.xlsx`);
       document.body.appendChild(link);
       link.click();
       link.remove();
 
-      const msgProgTypeName = programmeType && programmeType !== 'All' ? ` (${programmeType})` : '';
+      const msgProgTypeName =
+        programmeType && programmeType !== "All" ? ` (${programmeType})` : "";
       showNotification({
         title: "Success",
         message: `Roll list${msgProgTypeName} downloaded successfully`,
@@ -205,7 +206,7 @@ function ViewRollList() {
             course.course_id,
             course.course_code,
             course.semester_type,
-            course.academic_year
+            course.academic_year,
           )
         }
         variant="outline"
@@ -220,7 +221,7 @@ function ViewRollList() {
       >
         {loading && downloadingCourseId === course.course_id
           ? "Downloading..."
-          : `Download ${programmeType !== 'All' ? programmeType + ' ' : ''}Roll List`}
+          : `Download ${programmeType !== "All" ? programmeType + " " : ""}Roll List`}
       </Button>
     ),
   }));
@@ -235,7 +236,7 @@ function ViewRollList() {
       >
         Assigned Courses
       </Text>
-      
+
       <Group position="center" mb="md">
         <Select
           label="Programme Type"
@@ -252,7 +253,7 @@ function ViewRollList() {
           </Text>
         )}
       </Group>
-      
+
       {fetchError && (
         <Alert title="Error" color="red" mb="md">
           {fetchError}
@@ -264,7 +265,9 @@ function ViewRollList() {
         </Center>
       ) : (
         <>
-          {filteredCourses.length === 0 && allCourses.length > 0 && !filteringCourses ? (
+          {filteredCourses.length === 0 &&
+          allCourses.length > 0 &&
+          !filteringCourses ? (
             <Alert color="blue" mb="md">
               No courses found with {programmeType} students enrolled.
             </Alert>

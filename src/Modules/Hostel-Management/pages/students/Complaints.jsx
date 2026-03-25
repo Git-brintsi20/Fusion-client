@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import { useSelector } from "react-redux";
 import {
   Paper,
   Button,
@@ -9,43 +8,23 @@ import {
   ScrollArea,
   Loader,
 } from "@mantine/core";
-import axios from "axios";
-import ComplaintCard from "../../components/students/ComplaintCard"; // Adjust import path if necessary
-import { fetch_complaint } from "../../../../routes/hostelManagementRoutes"; // Adjust this import path as needed
+import ComplaintCard from "../../components/cards/ComplaintCard";
+import { studentService } from "../../services";
 
 export default function Complaints() {
   const [activeComplaints, setActiveComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem("authToken"); // Get the auth token from local storage
 
   // Fetch complaints for the logged-in user
   const fetchActiveComplaints = async () => {
-    console.log("Starting to fetch complaints...");
-
-    if (!token) {
-      console.error("Authentication token not found.");
-      setError("Authentication token not found. Please log in again.");
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-      console.log("Making API request to:", fetch_complaint);
-
-      // Make the GET request to the backend, where the backend automatically filters by roll_number
-      const response = await axios.get(fetch_complaint, {
-        headers: { Authorization: `Token ${token}` }, // Send token in the request header
-      });
-
-      console.log("API response received:", response);
+      const response = await studentService.getComplaints();
 
       if (response.data && response.data.complaints) {
-        console.log("Complaints found:", response.data.complaints);
         setActiveComplaints(response.data.complaints);
       } else {
-        console.warn("No complaints found in the response.");
         setError("No complaints found for this user.");
       }
     } catch (err) {
@@ -55,7 +34,6 @@ export default function Complaints() {
           "Failed to fetch complaints. Please try again later.",
       );
     } finally {
-      console.log("Finished fetching complaints.");
       setLoading(false);
     }
   };

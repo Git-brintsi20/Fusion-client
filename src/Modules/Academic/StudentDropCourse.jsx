@@ -1,15 +1,22 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
-  Card, Title, Table, Button, Group,
-  Modal, Text, Loader, Alert
-} from '@mantine/core';
-import { showNotification } from '@mantine/notifications';
-import axios from 'axios';
+  Card,
+  Title,
+  Table,
+  Button,
+  Group,
+  Modal,
+  Text,
+  Loader,
+  Alert,
+} from "@mantine/core";
+import { showNotification } from "@mantine/notifications";
+import axios from "axios";
 
 import {
   studentDropRegistrationsRoute,
   studentDropCourseRoute,
-} from '../../routes/academicRoutes';
+} from "../../routes/academicRoutes";
 
 export default function StudentDropCourse() {
   const [regs, setRegs] = useState([]);
@@ -20,22 +27,23 @@ export default function StudentDropCourse() {
 
   // Fetch current registrations
   const fetchRegistrations = useCallback(async () => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (!token) {
-      setError('Authentication required');
+      setError("Authentication required");
       setLoading(false);
       return;
     }
 
     try {
       const { data } = await axios.get(studentDropRegistrationsRoute, {
-        headers: { Authorization: `Token ${token}` }
+        headers: { Authorization: `Token ${token}` },
       });
       setRegs(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message;
-      setError(errorMsg || 'Failed to load courses');
+      const errorMsg =
+        err.response?.data?.error || err.response?.data?.message || err.message;
+      setError(errorMsg || "Failed to load courses");
     } finally {
       setLoading(false);
     }
@@ -51,12 +59,12 @@ export default function StudentDropCourse() {
   const handleDrop = useCallback(async () => {
     if (!selected) return;
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (!token) {
       showNotification({
-        title: 'Authentication Error',
-        message: 'Please login again',
-        color: 'red'
+        title: "Authentication Error",
+        message: "Please login again",
+        color: "red",
       });
       return;
     }
@@ -66,24 +74,27 @@ export default function StudentDropCourse() {
       const response = await axios.post(
         studentDropCourseRoute,
         { registration_id: selected.id },
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
 
       showNotification({
-        title: 'Drop Request Submitted',
-        message: response.data.message || 'Your drop request is pending Academic approval.',
-        color: 'blue'
+        title: "Drop Request Submitted",
+        message:
+          response.data.message ||
+          "Your drop request is pending Academic approval.",
+        color: "blue",
       });
 
       // Remove from list optimistically
-      setRegs(prev => prev.filter(r => r.id !== selected.id));
+      setRegs((prev) => prev.filter((r) => r.id !== selected.id));
       closeModal();
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message;
+      const errorMsg =
+        err.response?.data?.error || err.response?.data?.message || err.message;
       showNotification({
-        title: 'Drop Request Failed',
-        message: errorMsg || 'Failed to submit drop request',
-        color: 'red'
+        title: "Drop Request Failed",
+        message: errorMsg || "Failed to submit drop request",
+        color: "red",
       });
     } finally {
       setDropping(false);
@@ -91,7 +102,12 @@ export default function StudentDropCourse() {
   }, [selected, closeModal]);
 
   if (loading) return <Loader size="lg" />;
-  if (error) return <Alert color="red" title="Error">{error}</Alert>;
+  if (error)
+    return (
+      <Alert color="red" title="Error">
+        {error}
+      </Alert>
+    );
   if (!regs.length) {
     return (
       <Card withBorder p="md">
@@ -102,7 +118,9 @@ export default function StudentDropCourse() {
 
   return (
     <Card withBorder p="md">
-      <Title order={3} mb="md">Drop Registered Course</Title>
+      <Title order={3} mb="md">
+        Drop Registered Course
+      </Title>
       <Table highlightOnHover withTableBorder>
         <thead>
           <tr>
@@ -114,13 +132,15 @@ export default function StudentDropCourse() {
           </tr>
         </thead>
         <tbody>
-          {regs.map(r => (
+          {regs.map((r) => (
             <tr key={r.id}>
               <td>{r.slot}</td>
               <td>
                 <Text size="sm">{r.course}</Text>
                 {r.course_name && (
-                  <Text size="xs" color="dimmed">{r.course_name}</Text>
+                  <Text size="xs" color="dimmed">
+                    {r.course_name}
+                  </Text>
                 )}
               </td>
               <td>{r.academic_year}</td>
@@ -150,8 +170,11 @@ export default function StudentDropCourse() {
         <Text mb="md">
           Submit a drop request for <strong>{selected?.course}</strong>
           {selected?.course_name && (
-            <Text size="sm" color="dimmed">({selected.course_name})</Text>
-          )}?
+            <Text size="sm" color="dimmed">
+              ({selected.course_name})
+            </Text>
+          )}
+          ?
         </Text>
         <Group position="right" spacing="sm">
           <Button variant="outline" onClick={closeModal} disabled={dropping}>

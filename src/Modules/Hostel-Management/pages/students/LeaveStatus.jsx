@@ -13,9 +13,8 @@ import {
   Tabs,
   Badge,
 } from "@mantine/core";
-import axios from "axios";
-import LeaveApplicationCard from "../../components/students/LeaveApplicationCard";
-import { my_leaves } from "../../../../routes/hostelManagementRoutes";
+import LeaveApplicationCard from "../../components/cards/LeaveApplicationCard";
+import { studentService } from "../../services";
 
 export default function LeaveStatus() {
   const [leaves, setLeaves] = useState([]);
@@ -24,18 +23,9 @@ export default function LeaveStatus() {
   const [activeTab, setActiveTab] = useState("active");
 
   const fetchLeaves = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Authentication token not found. Please login again.");
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-      const response = await axios.get(my_leaves, {
-        headers: { Authorization: `Token ${token}` },
-      });
+      const response = await studentService.getMyLeaves();
 
       setLeaves(response.data.leaves);
       setError(null);

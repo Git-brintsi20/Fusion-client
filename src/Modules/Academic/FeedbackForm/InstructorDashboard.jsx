@@ -12,14 +12,7 @@ import {
   Space,
   Alert,
 } from "@mantine/core";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import {
   instCoursesRoute,
   instAllStatsRoute,
@@ -95,9 +88,10 @@ export default function InstructorDashboard() {
       />
       <Select
         label="Semester"
-        data={["Odd Semester", "Even Semester", "Summer Semester"].map(
-          (s) => ({ value: s, label: s })
-        )}
+        data={["Odd Semester", "Even Semester", "Summer Semester"].map((s) => ({
+          value: s,
+          label: s,
+        }))}
         value={semesterType}
         onChange={setSemesterType}
         mb="md"
@@ -135,7 +129,7 @@ export default function InstructorDashboard() {
             <Grid gutter="lg">
               {stats.map((q) => {
                 const chartData = Object.entries(q.counts).map(
-                  ([name, val]) => ({ name, val })
+                  ([name, val]) => ({ name, val }),
                 );
                 return (
                   <Grid.Col key={q.question_id} span={6}>
@@ -150,7 +144,13 @@ export default function InstructorDashboard() {
                           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                         >
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" interval={0} angle={-90} textAnchor="end" height={60} />
+                          <XAxis
+                            dataKey="name"
+                            interval={0}
+                            angle={-90}
+                            textAnchor="end"
+                            height={60}
+                          />
                           <YAxis allowDecimals={false} />
                           <Tooltip />
                           <Bar dataKey="val" fill="#4C6EF5" />

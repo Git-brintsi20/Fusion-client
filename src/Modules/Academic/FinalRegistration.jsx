@@ -51,9 +51,13 @@ function FinalRegistration() {
         const data = await response.json();
 
         if (data.final_registration_flag) {
-          setMessage("You have already done final registration for next semester.");
+          setMessage(
+            "You have already done final registration for next semester.",
+          );
         } else if (!data.frd) {
-          setMessage("Final Registration has not yet started for the next semester.");
+          setMessage(
+            "Final Registration has not yet started for the next semester.",
+          );
         } else {
           setCourses(data.final_registration || []);
           setPaymentDetails((prev) => ({
@@ -123,12 +127,7 @@ function FinalRegistration() {
   }
 
   if (message) {
-    return (
-        <Alert color="yellow"
-        >
-          {message}
-        </Alert>
-    );
+    return <Alert color="yellow">{message}</Alert>;
   }
 
   const mappedCourses = courses.map((course) => ({

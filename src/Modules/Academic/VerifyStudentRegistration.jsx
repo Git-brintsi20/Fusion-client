@@ -99,7 +99,11 @@ function VerifyStudentRegistration() {
         setDataFetched(true); // Mark data as fetched
       }
     } catch (err) {
-      setError(err.response?.status === 404 ? "Student list endpoint not found. Please contact admin." : err.message);
+      setError(
+        err.response?.status === 404
+          ? "Student list endpoint not found. Please contact admin."
+          : err.message,
+      );
     } finally {
       setLoading(false);
     }
@@ -205,7 +209,7 @@ function VerifyStudentRegistration() {
         }}
         data={batches.map((bat) => ({
           value: (bat.id || bat.batch_id).toString(),
-          label: `${bat.name || bat.label || `Batch ${bat.year}`} ${bat.discipline || ''}`,
+          label: `${bat.name || bat.label || `Batch ${bat.year}`} ${bat.discipline || ""}`,
         }))}
         disabled={loading}
         searchable
@@ -427,14 +431,16 @@ function VerifyStudentRegistration() {
             {selectedCourses.map((course, index) => (
               <List.Item key={index}>
                 {course.course_id.name} ({course.course_id.code}) -{" "}
-                {course.course_id.credit} credits 
+                {course.course_id.credit} credits
                 {course.old_course_registration && (
                   <>
                     <strong> replaces</strong>{" "}
                     <span style={{ color: "#555" }}>
-                      {course.old_course_registration.course_id.name} ({course.old_course_registration.course_id.code}) -{" "}
-                      {course.old_course_registration.course_id.credit} credits —{" "}
-                      {course.old_course_registration.semester_id.semester_no} semester
+                      {course.old_course_registration.course_id.name} (
+                      {course.old_course_registration.course_id.code}) -{" "}
+                      {course.old_course_registration.course_id.credit} credits
+                      — {course.old_course_registration.semester_id.semester_no}{" "}
+                      semester
                     </span>
                   </>
                 )}

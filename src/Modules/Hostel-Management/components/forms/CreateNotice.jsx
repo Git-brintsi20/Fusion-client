@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types"; // Add this import for prop validation
+import PropTypes from "prop-types";
 import {
   TextInput,
   Textarea,
@@ -11,10 +11,7 @@ import {
   Notification,
   Select,
 } from "@mantine/core";
-import axios from "axios";
-import { createNotice } from "../../../../routes/hostelManagementRoutes";
-
-axios.defaults.withXSRFToken = true;
+import { commonService } from "../../services";
 
 function CreateNotice({ existingAnnouncement }) {
   const [headline, setHeadline] = useState("");
@@ -64,14 +61,8 @@ function CreateNotice({ existingAnnouncement }) {
     setLoading(true);
     try {
       const announcement = { headline, content, description, scope };
-      const response = await axios.post(createNotice, announcement, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      });
-
-      if (response.status === 201) {
+      const response = await commonService.createNotice(announcement);
+      if (response?.status === 200 || response?.status === 201) {
         setNotification({
           opened: true,
           message: "Announcement submitted successfully!",

@@ -10,8 +10,7 @@ import {
   Group,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { getNotices } from "../../../../routes/hostelManagementRoutes";
+import { commonService } from "../../services";
 import { Empty } from "../../../../components/empty";
 
 // Helper function to transform scope number to string
@@ -25,20 +24,10 @@ export default function NoticeBoard() {
   const [error, setError] = useState(null);
 
   const fetchNotices = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Authentication token not found. Please login again.");
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-      const response = await axios.get(getNotices, {
-        headers: { Authorization: `Token ${token}` },
-      });
+      const response = await commonService.getNotices();
 
-      // Transform and sort the notices by id in descending order
       const transformedNotices = response.data
         .map((notice) => ({
           ...notice,
@@ -46,7 +35,7 @@ export default function NoticeBoard() {
           scope: getScopeType(notice.scope),
           posted_date: new Date().toLocaleDateString(),
         }))
-        .sort((a, b) => b.id - a.id); // Sorting by id in descending order
+        .sort((a, b) => b.id - a.id);
 
       setNotices(transformedNotices);
       setError(null);

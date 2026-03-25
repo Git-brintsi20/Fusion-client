@@ -15,14 +15,7 @@ import {
   Grid,
   Paper,
 } from "@mantine/core";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import {
   adminCoursesRoute,
   adminAllStatsRoute,
@@ -59,7 +52,11 @@ export default function AdminFeedbackView() {
     const token = localStorage.getItem("authToken");
     axios
       .get(adminAllStatsRoute, {
-        params: { session, semester_type: semesterType, course_id: selectedCourse },
+        params: {
+          session,
+          semester_type: semesterType,
+          course_id: selectedCourse,
+        },
         headers: { Authorization: `Token ${token}` },
       })
       .then((res) => setData(res.data))
@@ -72,7 +69,10 @@ export default function AdminFeedbackView() {
       <Card mb="md">
         <Select
           label="Session"
-          data={["2023-24", "2024-25", "2025-26"].map((s) => ({ value: s, label: s }))}
+          data={["2023-24", "2024-25", "2025-26"].map((s) => ({
+            value: s,
+            label: s,
+          }))}
           value={session}
           onChange={setSession}
           mb="md"
@@ -80,13 +80,20 @@ export default function AdminFeedbackView() {
 
         <Select
           label="Semester"
-          data={["Odd Semester", "Even Semester", "Summer Semester"].map((s) => ({ value: s, label: s }))}
+          data={["Odd Semester", "Even Semester", "Summer Semester"].map(
+            (s) => ({ value: s, label: s }),
+          )}
           value={semesterType}
           onChange={setSemesterType}
           mb="md"
         />
 
-        <Button mb="md" onClick={fetchCourses} disabled={coursesLoading} size="sm">
+        <Button
+          mb="md"
+          onClick={fetchCourses}
+          disabled={coursesLoading}
+          size="sm"
+        >
           {coursesLoading ? <Loader size="xs" /> : "Load Courses"}
         </Button>
 
@@ -145,7 +152,9 @@ export default function AdminFeedbackView() {
                 </Title>
                 <Grid gutter="lg">
                   {sec.questions.map((q) => {
-                    const chartData = Object.entries(q.counts).map(([name, val]) => ({ name, val }));
+                    const chartData = Object.entries(q.counts).map(
+                      ([name, val]) => ({ name, val }),
+                    );
                     return (
                       <Grid.Col key={q.question_id} span={6}>
                         <Paper p="md" shadow="xs">
@@ -155,7 +164,12 @@ export default function AdminFeedbackView() {
                               width={400}
                               height={350}
                               data={chartData}
-                              margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
+                              margin={{
+                                top: 20,
+                                right: 30,
+                                left: 20,
+                                bottom: 50,
+                              }}
                             >
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis
@@ -173,10 +187,14 @@ export default function AdminFeedbackView() {
                             <Paper p="sm" mt="md" withBorder>
                               {q.comments.length > 0 ? (
                                 q.comments.map((cmt, i) => (
-                                  <Text key={i} size="sm" mb="xs">– {cmt}</Text>
+                                  <Text key={i} size="sm" mb="xs">
+                                    – {cmt}
+                                  </Text>
                                 ))
                               ) : (
-                                <Text color="dimmed" size="sm">No comments</Text>
+                                <Text color="dimmed" size="sm">
+                                  No comments
+                                </Text>
                               )}
                             </Paper>
                           )}

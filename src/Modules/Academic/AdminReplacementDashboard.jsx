@@ -1,25 +1,42 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
-  Title, Select, Group, Button,
-  Table, Text, Loader, Alert,
-  Card, Box, Stack, Tabs, Badge, Modal, Checkbox, ActionIcon
-} from '@mantine/core';
-import { showNotification } from '@mantine/notifications';
-import { IconFileDownload, IconTrash, IconArrowBackUp } from '@tabler/icons-react';
-import axios from 'axios';
-import * as XLSX from 'xlsx';
+  Title,
+  Select,
+  Group,
+  Button,
+  Table,
+  Text,
+  Loader,
+  Alert,
+  Card,
+  Box,
+  Stack,
+  Tabs,
+  Badge,
+  Modal,
+  Checkbox,
+  ActionIcon,
+} from "@mantine/core";
+import { showNotification } from "@mantine/notifications";
+import {
+  IconFileDownload,
+  IconTrash,
+  IconArrowBackUp,
+} from "@tabler/icons-react";
+import axios from "axios";
+import * as XLSX from "xlsx";
 
 import {
   adminListRequestsRoute,
   allotReplacementCoursesRoute,
   revertReplacementRequestsRoute,
   deleteReplacementRequestsRoute,
-} from '../../routes/academicRoutes';
+} from "../../routes/academicRoutes";
 
 const SEMESTER_CHOICES = [
-  { value: 'Odd Semester', label: 'Odd Semester' },
-  { value: 'Even Semester', label: 'Even Semester' },
-  { value: 'Summer Semester', label: 'Summer Semester' },
+  { value: "Odd Semester", label: "Odd Semester" },
+  { value: "Even Semester", label: "Even Semester" },
+  { value: "Summer Semester", label: "Summer Semester" },
 ];
 
 const generateAcademicYears = () => {
@@ -34,53 +51,56 @@ const generateAcademicYears = () => {
     const endYear = startYear + 1;
     years.push(`${startYear}-${String(endYear).slice(-2)}`);
   }
-  
+
   return years;
 };
 
 export default function AdminReplacementDashboard() {
-  const [year, setYear] = useState('');
-  const [semester, setSemester] = useState('');
+  const [year, setYear] = useState("");
+  const [semester, setSemester] = useState("");
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [allocating, setAllocating] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState("");
   const [selectedPendingIds, setSelectedPendingIds] = useState(new Set());
   const [selectedProcessedIds, setSelectedProcessedIds] = useState(new Set());
   const [deleteModal, setDeleteModal] = useState({ open: false, ids: [] });
   const [deleting, setDeleting] = useState(false);
   const [revertModal, setRevertModal] = useState({ open: false, ids: [] });
   const [reverting, setReverting] = useState(false);
-  const [activeTab, setActiveTab] = useState('pending');
+  const [activeTab, setActiveTab] = useState("pending");
   const academicYears = generateAcademicYears();
 
   const pendingRequests = useMemo(
-    () => requests.filter(r => r.status === 'Pending'),
-    [requests]
+    () => requests.filter((r) => r.status === "Pending"),
+    [requests],
   );
 
   const processedRequests = useMemo(
-    () => requests.filter(r => r.status !== 'Pending'),
-    [requests]
+    () => requests.filter((r) => r.status !== "Pending"),
+    [requests],
   );
 
   const filteredProcessedRequests = useMemo(
-    () => statusFilter ? processedRequests.filter(r => r.status === statusFilter) : processedRequests,
-    [processedRequests, statusFilter]
+    () =>
+      statusFilter
+        ? processedRequests.filter((r) => r.status === statusFilter)
+        : processedRequests,
+    [processedRequests, statusFilter],
   );
 
   const rejectedRequests = useMemo(
-    () => filteredProcessedRequests.filter(r => r.status === 'Rejected'),
-    [filteredProcessedRequests]
+    () => filteredProcessedRequests.filter((r) => r.status === "Rejected"),
+    [filteredProcessedRequests],
   );
 
   const fetchRequests = useCallback(() => {
     if (!year || !semester) return;
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (!token) {
-      setError('No auth token found');
+      setError("No auth token found");
       return;
     }
 
@@ -89,13 +109,14 @@ export default function AdminReplacementDashboard() {
     setSelectedPendingIds(new Set());
     setSelectedProcessedIds(new Set());
 
-    axios.get(adminListRequestsRoute, {
-      params: { academic_year: year, semester_type: semester },
-      headers: { Authorization: `Token ${token}` },
-    })
-    .then(({ data }) => setRequests(Array.isArray(data) ? data : []))
-    .catch(err => setError(err.response?.data?.detail || err.message))
-    .finally(() => setLoading(false));
+    axios
+      .get(adminListRequestsRoute, {
+        params: { academic_year: year, semester_type: semester },
+        headers: { Authorization: `Token ${token}` },
+      })
+      .then(({ data }) => setRequests(Array.isArray(data) ? data : []))
+      .catch((err) => setError(err.response?.data?.detail || err.message))
+      .finally(() => setLoading(false));
   }, [year, semester]);
 
   useEffect(() => {
@@ -105,53 +126,59 @@ export default function AdminReplacementDashboard() {
   const handleAllocate = () => {
     if (!year || !semester) {
       showNotification({
-        title: 'Missing filters',
-        message: 'Please select both year and semester.',
-        color: 'yellow',
+        title: "Missing filters",
+        message: "Please select both year and semester.",
+        color: "yellow",
       });
       return;
     }
 
     if (pendingRequests.length === 0) {
       showNotification({
-        title: 'No Pending Requests',
-        message: 'There are no pending requests to allocate.',
-        color: 'yellow',
+        title: "No Pending Requests",
+        message: "There are no pending requests to allocate.",
+        color: "yellow",
       });
       return;
     }
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (!token) {
-      showNotification({ title: 'Auth Error', message: 'No token found', color: 'red' });
+      showNotification({
+        title: "Auth Error",
+        message: "No token found",
+        color: "red",
+      });
       return;
     }
 
     setAllocating(true);
-    axios.post(allotReplacementCoursesRoute,
-      { academic_year: year, semester_type: semester },
-      { headers: { Authorization: `Token ${token}` } }
-    )
-    .then(() => {
-      showNotification({
-        title: 'Allocation Complete',
-        message: 'All pending requests processed.',
-        color: 'green'
-      });
-      fetchRequests(); // Refresh after allocation
-    })
-    .catch(err => {
-      showNotification({
-        title: 'Allocation Error',
-        message: err.response?.data?.detail || err.message,
-        color: 'red',
-      });
-    })
-    .finally(() => setAllocating(false));
+    axios
+      .post(
+        allotReplacementCoursesRoute,
+        { academic_year: year, semester_type: semester },
+        { headers: { Authorization: `Token ${token}` } },
+      )
+      .then(() => {
+        showNotification({
+          title: "Allocation Complete",
+          message: "All pending requests processed.",
+          color: "green",
+        });
+        fetchRequests(); // Refresh after allocation
+      })
+      .catch((err) => {
+        showNotification({
+          title: "Allocation Error",
+          message: err.response?.data?.detail || err.message,
+          color: "red",
+        });
+      })
+      .finally(() => setAllocating(false));
   };
 
   const togglePendingSelection = useCallback((id) => {
-    setSelectedPendingIds(prev => {
+    setSelectedPendingIds((prev) => {
       const newSet = new Set(prev);
       newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
@@ -159,7 +186,7 @@ export default function AdminReplacementDashboard() {
   }, []);
 
   const toggleProcessedSelection = useCallback((id) => {
-    setSelectedProcessedIds(prev => {
+    setSelectedProcessedIds((prev) => {
       const newSet = new Set(prev);
       newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
@@ -167,18 +194,24 @@ export default function AdminReplacementDashboard() {
   }, []);
 
   const toggleSelectAllPending = useCallback(() => {
-    if (selectedPendingIds.size === pendingRequests.length && pendingRequests.length > 0) {
+    if (
+      selectedPendingIds.size === pendingRequests.length &&
+      pendingRequests.length > 0
+    ) {
       setSelectedPendingIds(new Set());
     } else {
-      setSelectedPendingIds(new Set(pendingRequests.map(r => r.id)));
+      setSelectedPendingIds(new Set(pendingRequests.map((r) => r.id)));
     }
   }, [selectedPendingIds.size, pendingRequests]);
 
   const toggleSelectAllRejected = useCallback(() => {
-    if (selectedProcessedIds.size === rejectedRequests.length && rejectedRequests.length > 0) {
+    if (
+      selectedProcessedIds.size === rejectedRequests.length &&
+      rejectedRequests.length > 0
+    ) {
       setSelectedProcessedIds(new Set());
     } else {
-      setSelectedProcessedIds(new Set(rejectedRequests.map(r => r.id)));
+      setSelectedProcessedIds(new Set(rejectedRequests.map((r) => r.id)));
     }
   }, [selectedProcessedIds.size, rejectedRequests]);
 
@@ -202,12 +235,12 @@ export default function AdminReplacementDashboard() {
     const { ids } = deleteModal;
     if (ids.length === 0) return;
 
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (!token) {
       showNotification({
-        title: 'Authentication Error',
-        message: 'Please login again',
-        color: 'red'
+        title: "Authentication Error",
+        message: "Please login again",
+        color: "red",
       });
       return;
     }
@@ -217,28 +250,28 @@ export default function AdminReplacementDashboard() {
       const response = await axios.post(
         deleteReplacementRequestsRoute,
         { request_ids: ids },
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
 
       showNotification({
-        title: 'Success',
+        title: "Success",
         message: `Deleted ${response.data.deleted} request(s)`,
-        color: 'green'
+        color: "green",
       });
 
-      setSelectedPendingIds(prev => {
+      setSelectedPendingIds((prev) => {
         const newSet = new Set(prev);
-        ids.forEach(id => newSet.delete(id));
+        ids.forEach((id) => newSet.delete(id));
         return newSet;
       });
-      
+
       closeDeleteModal();
       await fetchRequests();
     } catch (err) {
       showNotification({
-        title: 'Delete Failed',
+        title: "Delete Failed",
         message: err.response?.data?.error || err.message,
-        color: 'red',
+        color: "red",
       });
     } finally {
       setDeleting(false);
@@ -248,9 +281,9 @@ export default function AdminReplacementDashboard() {
   const handleBulkDelete = useCallback(() => {
     if (selectedPendingIds.size === 0) {
       showNotification({
-        title: 'No Selection',
-        message: 'Please select at least one request to delete',
-        color: 'yellow',
+        title: "No Selection",
+        message: "Please select at least one request to delete",
+        color: "yellow",
       });
       return;
     }
@@ -259,12 +292,12 @@ export default function AdminReplacementDashboard() {
 
   const handleRevertToPending = useCallback(async () => {
     const idArray = revertModal.ids;
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     if (!token) {
       showNotification({
-        title: 'Authentication Error',
-        message: 'Please login again',
-        color: 'red'
+        title: "Authentication Error",
+        message: "Please login again",
+        color: "red",
       });
       return;
     }
@@ -274,28 +307,28 @@ export default function AdminReplacementDashboard() {
       const response = await axios.post(
         revertReplacementRequestsRoute,
         { request_ids: idArray },
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
 
       showNotification({
-        title: 'Success',
+        title: "Success",
         message: `Reverted ${response.data.reverted} request(s) to Pending`,
-        color: 'green'
+        color: "green",
       });
 
-      setSelectedProcessedIds(prev => {
+      setSelectedProcessedIds((prev) => {
         const newSet = new Set(prev);
-        idArray.forEach(id => newSet.delete(id));
+        idArray.forEach((id) => newSet.delete(id));
         return newSet;
       });
-      
+
       closeRevertModal();
       await fetchRequests();
     } catch (err) {
       showNotification({
-        title: 'Revert Failed',
+        title: "Revert Failed",
         message: err.response?.data?.error || err.message,
-        color: 'red',
+        color: "red",
       });
     } finally {
       setReverting(false);
@@ -305,52 +338,57 @@ export default function AdminReplacementDashboard() {
   const handleBulkRevert = useCallback(() => {
     if (selectedProcessedIds.size === 0) {
       showNotification({
-        title: 'No Selection',
-        message: 'Please select at least one rejected request to revert',
-        color: 'yellow',
+        title: "No Selection",
+        message: "Please select at least one rejected request to revert",
+        color: "yellow",
       });
       return;
     }
     openRevertModal(Array.from(selectedProcessedIds));
   }, [selectedProcessedIds, openRevertModal]);
 
-  const handleExportToExcel = useCallback((data, type) => {
-    if (data.length === 0) {
+  const handleExportToExcel = useCallback(
+    (data, type) => {
+      if (data.length === 0) {
+        showNotification({
+          title: "No Data",
+          message: "No data to export",
+          color: "yellow",
+        });
+        return;
+      }
+
+      const exportData = data.map((r, index) => ({
+        "S. No.": index + 1,
+        Student: r.student,
+        "Student Name": r.student_name || "",
+        Slot: r.slot,
+        "Old Course": r.old_course,
+        "Old Course Name": r.old_course_name || "",
+        "New Course": r.new_course,
+        "New Course Name": r.new_course_name || "",
+        Status: r.status,
+        "Requested At": new Date(r.created_at).toLocaleString(),
+        "Processed At": r.processed_at
+          ? new Date(r.processed_at).toLocaleString()
+          : "",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Replacements");
+
+      const fileName = `Replacement_${type}_${year}_${semester.replace(/\s+/g, "_")}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
       showNotification({
-        title: 'No Data',
-        message: 'No data to export',
-        color: 'yellow',
+        title: "Export Successful",
+        message: `Data exported to ${fileName}`,
+        color: "green",
       });
-      return;
-    }
-
-    const exportData = data.map((r, index) => ({
-      'S. No.': index + 1,
-      'Student': r.student,
-      'Student Name': r.student_name || '',
-      'Slot': r.slot,
-      'Old Course': r.old_course,
-      'Old Course Name': r.old_course_name || '',
-      'New Course': r.new_course,
-      'New Course Name': r.new_course_name || '',
-      'Status': r.status,
-      'Requested At': new Date(r.created_at).toLocaleString(),
-      'Processed At': r.processed_at ? new Date(r.processed_at).toLocaleString() : ''
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Replacements');
-    
-    const fileName = `Replacement_${type}_${year}_${semester.replace(/\s+/g, '_')}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
-
-    showNotification({
-      title: 'Export Successful',
-      message: `Data exported to ${fileName}`,
-      color: 'green',
-    });
-  }, [year, semester]);
+    },
+    [year, semester],
+  );
 
   const renderPendingTable = (data) => (
     <Table highlightOnHover withTableBorder>
@@ -358,9 +396,14 @@ export default function AdminReplacementDashboard() {
         <tr>
           <th style={{ width: 50 }}>
             <Checkbox
-              checked={selectedPendingIds.size === data.length && data.length > 0}
+              checked={
+                selectedPendingIds.size === data.length && data.length > 0
+              }
               onChange={toggleSelectAllPending}
-              indeterminate={selectedPendingIds.size > 0 && selectedPendingIds.size < data.length}
+              indeterminate={
+                selectedPendingIds.size > 0 &&
+                selectedPendingIds.size < data.length
+              }
             />
           </th>
           <th>S. No.</th>
@@ -384,20 +427,34 @@ export default function AdminReplacementDashboard() {
             </td>
             <td>{index + 1}</td>
             <td>
-              <Text size="sm" weight={500}>{r.student}</Text>
-              <Text size="xs" color="dimmed">{r.student_name}</Text>
+              <Text size="sm" weight={500}>
+                {r.student}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {r.student_name}
+              </Text>
             </td>
             <td>{r.slot}</td>
             <td>
-              <Text size="sm" weight={500}>{r.old_course}</Text>
-              <Text size="xs" color="dimmed">{r.old_course_name}</Text>
+              <Text size="sm" weight={500}>
+                {r.old_course}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {r.old_course_name}
+              </Text>
             </td>
             <td>
-              <Text size="sm" weight={500}>{r.new_course}</Text>
-              <Text size="xs" color="dimmed">{r.new_course_name}</Text>
+              <Text size="sm" weight={500}>
+                {r.new_course}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {r.new_course_name}
+              </Text>
             </td>
             <td>
-              <Badge color="yellow" variant="filled">{r.status}</Badge>
+              <Badge color="yellow" variant="filled">
+                {r.status}
+              </Badge>
             </td>
             <td>{new Date(r.created_at).toLocaleString()}</td>
             <td>
@@ -420,12 +477,18 @@ export default function AdminReplacementDashboard() {
     <Table highlightOnHover withTableBorder>
       <thead>
         <tr>
-          {statusFilter === 'Rejected' && (
+          {statusFilter === "Rejected" && (
             <th style={{ width: 50 }}>
               <Checkbox
-                checked={selectedProcessedIds.size === rejectedRequests.length && rejectedRequests.length > 0}
+                checked={
+                  selectedProcessedIds.size === rejectedRequests.length &&
+                  rejectedRequests.length > 0
+                }
                 onChange={toggleSelectAllRejected}
-                indeterminate={selectedProcessedIds.size > 0 && selectedProcessedIds.size < rejectedRequests.length}
+                indeterminate={
+                  selectedProcessedIds.size > 0 &&
+                  selectedProcessedIds.size < rejectedRequests.length
+                }
               />
             </th>
           )}
@@ -443,9 +506,9 @@ export default function AdminReplacementDashboard() {
                   value={statusFilter}
                   onChange={setStatusFilter}
                   data={[
-                    { value: '', label: 'All' },
-                    { value: 'Approved', label: 'Approved' },
-                    { value: 'Rejected', label: 'Rejected' },
+                    { value: "", label: "All" },
+                    { value: "Approved", label: "Approved" },
+                    { value: "Rejected", label: "Rejected" },
                   ]}
                   size="xs"
                   style={{ width: 100 }}
@@ -455,14 +518,16 @@ export default function AdminReplacementDashboard() {
             </Group>
           </th>
           <th>Requested At</th>
-          {data.some(r => r.processed_at) && <th>Processed At</th>}
-          {statusFilter === 'Rejected' && <th style={{ width: 80 }}>Actions</th>}
+          {data.some((r) => r.processed_at) && <th>Processed At</th>}
+          {statusFilter === "Rejected" && (
+            <th style={{ width: 80 }}>Actions</th>
+          )}
         </tr>
       </thead>
       <tbody>
         {data.map((r, index) => (
           <tr key={r.id}>
-            {statusFilter === 'Rejected' && (
+            {statusFilter === "Rejected" && (
               <td>
                 <Checkbox
                   checked={selectedProcessedIds.has(r.id)}
@@ -472,31 +537,53 @@ export default function AdminReplacementDashboard() {
             )}
             <td>{index + 1}</td>
             <td>
-              <Text size="sm" weight={500}>{r.student}</Text>
-              <Text size="xs" color="dimmed">{r.student_name}</Text>
+              <Text size="sm" weight={500}>
+                {r.student}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {r.student_name}
+              </Text>
             </td>
             <td>{r.slot}</td>
             <td>
-              <Text size="sm" weight={500}>{r.old_course}</Text>
-              <Text size="xs" color="dimmed">{r.old_course_name}</Text>
+              <Text size="sm" weight={500}>
+                {r.old_course}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {r.old_course_name}
+              </Text>
             </td>
             <td>
-              <Text size="sm" weight={500}>{r.new_course}</Text>
-              <Text size="xs" color="dimmed">{r.new_course_name}</Text>
+              <Text size="sm" weight={500}>
+                {r.new_course}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {r.new_course_name}
+              </Text>
             </td>
             <td>
               <Badge
-                color={r.status === 'Approved' ? 'green' : r.status === 'Rejected' ? 'red' : 'yellow'}
+                color={
+                  r.status === "Approved"
+                    ? "green"
+                    : r.status === "Rejected"
+                      ? "red"
+                      : "yellow"
+                }
                 variant="filled"
               >
                 {r.status}
               </Badge>
             </td>
             <td>{new Date(r.created_at).toLocaleString()}</td>
-            {data.some(req => req.processed_at) && (
-              <td>{r.processed_at ? new Date(r.processed_at).toLocaleString() : '-'}</td>
+            {data.some((req) => req.processed_at) && (
+              <td>
+                {r.processed_at
+                  ? new Date(r.processed_at).toLocaleString()
+                  : "-"}
+              </td>
             )}
-            {statusFilter === 'Rejected' && (
+            {statusFilter === "Rejected" && (
               <td>
                 <ActionIcon
                   color="blue"
@@ -523,7 +610,7 @@ export default function AdminReplacementDashboard() {
             <Select
               label="Academic Year"
               placeholder="e.g. 2025-26"
-              data={academicYears.map(y => ({ value: y, label: y }))}
+              data={academicYears.map((y) => ({ value: y, label: y }))}
               value={year}
               onChange={setYear}
             />
@@ -537,18 +624,18 @@ export default function AdminReplacementDashboard() {
           </Group>
 
           <Group position="left" spacing="xs">
-            <Button 
-              size="sm" 
-              onClick={fetchRequests} 
+            <Button
+              size="sm"
+              onClick={fetchRequests}
               loading={loading}
               disabled={!year || !semester}
             >
               Refresh
             </Button>
-            <Button 
-              size="sm" 
-              color="green" 
-              onClick={handleAllocate} 
+            <Button
+              size="sm"
+              color="green"
+              onClick={handleAllocate}
               loading={allocating}
               disabled={!year || !semester || pendingRequests.length === 0}
             >
@@ -563,8 +650,10 @@ export default function AdminReplacementDashboard() {
           <Loader size="lg" />
         </Card>
       ) : error ? (
-        <Alert title="Error" color="red" mt="md">{error}</Alert>
-      ) : (!year || !semester) ? (
+        <Alert title="Error" color="red" mt="md">
+          {error}
+        </Alert>
+      ) : !year || !semester ? (
         <Alert color="gray" mt="md">
           Select academic year and semester to view replacement requests.
         </Alert>
@@ -597,7 +686,9 @@ export default function AdminReplacementDashboard() {
                     <Button
                       size="sm"
                       color="blue"
-                      onClick={() => handleExportToExcel(pendingRequests, 'Pending')}
+                      onClick={() =>
+                        handleExportToExcel(pendingRequests, "Pending")
+                      }
                       leftSection={<IconFileDownload size={16} />}
                     >
                       Export to Excel
@@ -617,7 +708,7 @@ export default function AdminReplacementDashboard() {
                 <Group position="apart" mb="md">
                   <Title order={4}>Processed Requests</Title>
                   <Group spacing="xs">
-                    {statusFilter === 'Rejected' && (
+                    {statusFilter === "Rejected" && (
                       <Button
                         size="sm"
                         color="blue"
@@ -633,7 +724,12 @@ export default function AdminReplacementDashboard() {
                     <Button
                       size="sm"
                       color="blue"
-                      onClick={() => handleExportToExcel(filteredProcessedRequests, 'Processed')}
+                      onClick={() =>
+                        handleExportToExcel(
+                          filteredProcessedRequests,
+                          "Processed",
+                        )
+                      }
                       leftSection={<IconFileDownload size={16} />}
                     >
                       Export to Excel
@@ -658,13 +754,18 @@ export default function AdminReplacementDashboard() {
         closeOnEscape={!deleting}
       >
         <Text size="sm" mb="md" weight={500}>
-          Are you sure you want to permanently delete {deleteModal.ids.length} replacement request{deleteModal.ids.length > 1 ? 's' : ''}?
+          Are you sure you want to permanently delete {deleteModal.ids.length}{" "}
+          replacement request{deleteModal.ids.length > 1 ? "s" : ""}?
         </Text>
         <Text size="sm" color="dimmed" mb="md">
           This action cannot be undone.
         </Text>
         <Group position="right" spacing="sm">
-          <Button variant="outline" onClick={closeDeleteModal} disabled={deleting}>
+          <Button
+            variant="outline"
+            onClick={closeDeleteModal}
+            disabled={deleting}
+          >
             Cancel
           </Button>
           <Button color="red" onClick={handleDelete} loading={deleting}>
@@ -682,16 +783,26 @@ export default function AdminReplacementDashboard() {
         closeOnEscape={!reverting}
       >
         <Text size="sm" mb="md" weight={500}>
-          Are you sure you want to revert {revertModal.ids.length} rejected request{revertModal.ids.length > 1 ? 's' : ''} back to Pending status?
+          Are you sure you want to revert {revertModal.ids.length} rejected
+          request{revertModal.ids.length > 1 ? "s" : ""} back to Pending status?
         </Text>
         <Text size="sm" color="dimmed" mb="md">
-          The request{revertModal.ids.length > 1 ? 's' : ''} will be moved back to the Pending Requests tab.
+          The request{revertModal.ids.length > 1 ? "s" : ""} will be moved back
+          to the Pending Requests tab.
         </Text>
         <Group position="right" spacing="sm">
-          <Button variant="outline" onClick={closeRevertModal} disabled={reverting}>
+          <Button
+            variant="outline"
+            onClick={closeRevertModal}
+            disabled={reverting}
+          >
             Cancel
           </Button>
-          <Button color="blue" onClick={handleRevertToPending} loading={reverting}>
+          <Button
+            color="blue"
+            onClick={handleRevertToPending}
+            loading={reverting}
+          >
             Revert to Pending
           </Button>
         </Group>

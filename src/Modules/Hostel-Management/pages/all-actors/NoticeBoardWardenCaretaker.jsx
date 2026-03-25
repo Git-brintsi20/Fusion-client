@@ -13,13 +13,9 @@ import {
   Box,
   ActionIcon,
 } from "@mantine/core";
-import { X } from "tabler-icons-react";
-import axios from "axios";
-import CreateNotice from "../../components/warden/CreateNotice";
-import {
-  getNotices,
-  deleteNotice,
-} from "../../../../routes/hostelManagementRoutes";
+import { X } from "@tabler/icons-react";
+import CreateNotice from "../../components/forms/CreateNotice";
+import { commonService } from "../../services";
 import { Empty } from "../../../../components/empty";
 
 const getScopeType = (scope) => (scope === "1" ? "global" : "hall");
@@ -31,18 +27,9 @@ export default function NoticeBoard() {
   const [isCreateNoticeOpen, setIsCreateNoticeOpen] = useState(false);
 
   const fetchNotices = async () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Authentication token not found. Please login again.");
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-      const response = await axios.get(getNotices, {
-        headers: { Authorization: `Token ${token}` },
-      });
+      const response = await commonService.getNotices();
       console.log(response);
 
       const transformedNotices = response.data
@@ -52,7 +39,7 @@ export default function NoticeBoard() {
           scope: getScopeType(notice.scope),
           posted_date: new Date().toLocaleDateString(),
         }))
-        .sort((a, b) => b.id - a.id); // Sort notices by ID in descending order
+        .sort((a, b) => b.id - a.id);
 
       setNotices(transformedNotices);
       setError(null);
@@ -71,20 +58,8 @@ export default function NoticeBoard() {
   }, []);
 
   const handleDeleteNotice = async (noticeId) => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      setError("Authentication token not found. Please login again.");
-      return;
-    }
-
     try {
-      const response = await axios.post(
-        deleteNotice,
-        { id: noticeId },
-        {
-          headers: { Authorization: `Token ${token}` },
-        },
-      );
+      const response = await commonService.deleteNotice({ id: noticeId });
 
       if (response.status === 200) {
         setNotices((prev) => prev.filter((notice) => notice.id !== noticeId));

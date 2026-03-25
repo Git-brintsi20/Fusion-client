@@ -61,7 +61,7 @@ function AcademicCalendar() {
                 from_date: e.from_date ? new Date(e.from_date) : null,
                 to_date: e.to_date ? new Date(e.to_date) : null,
               }))
-            : []
+            : [],
         );
       } catch (err) {
         if (mounted) setError("Failed to load events");
@@ -115,7 +115,7 @@ function AcademicCalendar() {
           from_date: editingEvent.from_date.toISOString().slice(0, 10),
           to_date: editingEvent.to_date.toISOString().slice(0, 10),
         },
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
       setEditingEvent(null);
       setRefreshTrigger((t) => t + 1);
@@ -128,11 +128,7 @@ function AcademicCalendar() {
 
   // Create new event
   const handleAddEvent = async () => {
-    if (
-      !newEvent.description ||
-      !newEvent.from_date ||
-      !newEvent.to_date
-    ) {
+    if (!newEvent.description || !newEvent.from_date || !newEvent.to_date) {
       return setError("Please fill all fields");
     }
     setProcessing(true);
@@ -145,7 +141,7 @@ function AcademicCalendar() {
           from_date: newEvent.from_date.toISOString().slice(0, 10),
           to_date: newEvent.to_date.toISOString().slice(0, 10),
         },
-        { headers: { Authorization: `Token ${token}` } }
+        { headers: { Authorization: `Token ${token}` } },
       );
       setAddModalOpen(false);
       setRefreshTrigger((t) => t + 1);
