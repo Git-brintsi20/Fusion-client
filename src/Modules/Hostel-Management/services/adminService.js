@@ -30,6 +30,14 @@ const adminService = {
         "Content-Type": "multipart/form-data",
       },
     }),
+
+  // Get room allocation options for admin
+  getRoomAllocationData: () =>
+    api.get("/hostelmanagement/admin-room-allocation-data/"),
+
+  // Assign room to selected student
+  assignRoomToStudent: (data) =>
+    api.post("/hostelmanagement/admin-assign-room/", data),
 };
 
 export default adminService;

@@ -26,9 +26,12 @@ export default function UploadAttendanceComponent() {
     const fetchHostels = async () => {
       try {
         const response = await adminService.viewHostel();
-        setHostelsData(response.data.hostel_details);
-        if (response.data.hostel_details.length > 0) {
-          setSelectedHall(response.data.hostel_details[0].hall_id);
+        const hostelDetails = Array.isArray(response.data?.hostel_details)
+          ? response.data.hostel_details
+          : [];
+        setHostelsData(hostelDetails);
+        if (hostelDetails.length > 0) {
+          setSelectedHall(hostelDetails[0].hall_id);
         }
         setLoading(false);
       } catch (error) {
@@ -40,7 +43,9 @@ export default function UploadAttendanceComponent() {
     fetchHostels();
   }, []);
 
-  const selectedHallData = hostelsData.find((h) => h.hall_id === selectedHall);
+  const selectedHallData = Array.isArray(hostelsData)
+    ? hostelsData.find((h) => h.hall_id === selectedHall)
+    : undefined;
 
   useEffect(() => {
     setSelectedBatch("");
@@ -184,7 +189,7 @@ export default function UploadAttendanceComponent() {
               variant="filled"
               size="md"
               color="#4299E1"
-              leftIcon={<Upload size={20} />}
+              leftSection={<Upload size={20} />}
               fullWidth
               styles={{
                 root: {

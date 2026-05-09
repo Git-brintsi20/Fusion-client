@@ -11,7 +11,6 @@ import {
   Transition,
   rem,
   UnstyledButton,
-  Badge,
 } from "@mantine/core";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -116,21 +115,11 @@ const throttle = (func, limit) => {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
+      setTimeout(() => {
+        inThrottle = false;
+      }, limit);
     }
   };
-};
-
-const getPasswordStrength = (password) => {
-  if (password.length < 6) return { label: "weak", color: "red" };
-  if (password.length < 10) return { label: "medium", color: "yellow" };
-  return { label: "strong", color: "green" };
-};
-
-const getPasswordGradient = (length) => {
-  if (length < 6) return "linear-gradient(90deg, #EF4444 0%, #DC2626 100%)";
-  if (length < 10) return "linear-gradient(90deg, #F59E0B 0%, #D97706 100%)";
-  return "linear-gradient(90deg, #10B981 0%, #059669 100%)";
 };
 
 function LoginPage() {
@@ -160,10 +149,6 @@ function LoginPage() {
   const [isMobile, setIsMobile] = useState(initialIsMobile);
 
   const isLogin = useMemo(() => view === "login", [view]);
-  const passwordStrength = useMemo(
-    () => getPasswordStrength(password),
-    [password],
-  );
   const isFormValid = useMemo(
     () => username.trim() && password.trim(),
     [username, password],
@@ -266,6 +251,7 @@ function LoginPage() {
 
         if (response.status === 200 && response.data?.token) {
           localStorage.setItem("authToken", response.data.token);
+          console.log("Login token:", response.data.token);
 
           notifications.show({
             message: "Authentication successful",
@@ -287,7 +273,7 @@ function LoginPage() {
           errorMessage =
             "Request timeout. Please check your internet connection and try again.";
         } else if (err.response) {
-          const status = err.response.status;
+          const { status } = err.response;
           const serverMessage =
             err.response.data?.message || err.response.data?.error;
 
@@ -642,7 +628,7 @@ function LoginPage() {
                 </Title>
               </Box>
               {!isLogin && (
-                <Text c="dimmed" fw={600} size="xs" mt="xl" lts={5}></Text>
+                <Text c="dimmed" fw={600} size="xs" mt="xl" lts={5} />
               )}
             </Box>
 
@@ -718,12 +704,12 @@ function LoginPage() {
                         transition: "all 0.3s ease",
                         display: isMobile ? "none" : "inline-block",
                       }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.transform = "translateX(-5px)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.transform = "translateX(0)")
-                      }
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateX(-5px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateX(0)";
+                      }}
                     >
                       <Text size="xs" fw={900} c="blue" lts={1}>
                         ← BACK

@@ -15,7 +15,6 @@ function CreateNotice({ onSubmit, existingAnnouncement }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
-  const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({
     opened: false,
@@ -27,7 +26,6 @@ function CreateNotice({ onSubmit, existingAnnouncement }) {
     setTitle("");
     setDescription("");
     setFile(null);
-    setDate("");
   };
 
   useEffect(() => {
@@ -35,7 +33,6 @@ function CreateNotice({ onSubmit, existingAnnouncement }) {
       setTitle(existingAnnouncement.title);
       setDescription(existingAnnouncement.description);
       setFile(existingAnnouncement.file);
-      setDate(existingAnnouncement.date);
     } else {
       resetForm();
     }
@@ -46,7 +43,7 @@ function CreateNotice({ onSubmit, existingAnnouncement }) {
     setLoading(true);
 
     try {
-      const announcement = { title, description, file, date };
+      const announcement = { title, description, file };
       await onSubmit(announcement);
       setNotification({
         opened: true,
@@ -99,14 +96,6 @@ function CreateNotice({ onSubmit, existingAnnouncement }) {
           accept="application/pdf,image/*"
           mb="md"
         />
-        <TextInput
-          label="Date"
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.currentTarget.value)}
-          required
-          mb="md"
-        />
         <Group position="right">
           <Button type="submit" variant="filled" color="blue" loading={loading}>
             {existingAnnouncement ? "Update" : "Submit"}
@@ -143,7 +132,6 @@ CreateNotice.propTypes = {
     description: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     file: PropTypes.any,
-    date: PropTypes.string,
   }),
 };
 

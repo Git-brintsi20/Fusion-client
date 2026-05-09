@@ -12,15 +12,25 @@ const caretakerService = {
   updateFineStatus: (fineId, status) =>
     api.post(`/hostelmanagement/update-fine-status/${fineId}/`, { status }),
 
+  // Delete fine
+  deleteFine: (fineId) =>
+    api.delete(`/hostelmanagement/fine/delete/${fineId}/`),
+
   // Impose fine on student
   imposeFine: (data) => api.post("/hostelmanagement/impose-fine/", data),
 
   // Get leave requests
-  getLeaveRequests: () => api.get("/hostelmanagement/all_leave_data/"),
+  getLeaveRequests: () => api.get("/hostelmanagement/api/leaves/"),
 
   // Update leave status
   updateLeaveStatus: (data) =>
-    api.post("/hostelmanagement/update_leave_status/", data),
+    api.patch(`/hostelmanagement/api/leaves/${data.leave_id}/status/`, data),
+
+  // Download/view supporting document for a leave
+  getLeaveDocument: (leaveId) =>
+    api.get(`/hostelmanagement/api/leaves/${leaveId}/document/`, {
+      responseType: "blob",
+    }),
 
   // Upload attendance
   uploadAttendance: (formData) =>
@@ -29,6 +39,15 @@ const caretakerService = {
         "Content-Type": "multipart/form-data",
       },
     }),
+
+  // Room change requests
+  getRoomChangeRequests: () =>
+    api.get("/hostelmanagement/api/room-change-requests/"),
+  updateRoomChangeStatus: (requestId, status) =>
+    api.patch(
+      `/hostelmanagement/api/room-change-requests/${requestId}/status/`,
+      { status },
+    ),
 
   // Create notice
   createNotice: (data) => api.post("/hostelmanagement/create_notice/", data),

@@ -6,17 +6,39 @@ const studentService = {
     api.get("/hostelmanagement/students_get_students_info/"),
 
   // Get student's own leaves
-  getMyLeaves: () => api.get("/hostelmanagement/my_leaves/"),
+  getMyLeaves: () => api.get("/hostelmanagement/api/leaves/me/"),
+
+  // Download/view supporting document for a leave
+  getLeaveDocument: (leaveId) =>
+    api.get(`/hostelmanagement/api/leaves/${leaveId}/document/`, {
+      responseType: "blob",
+    }),
 
   // Get fines for student
-  getStudentFines: () => api.get("/hostelmanagement/fine-show/"),
+  getStudentFines: () => api.get("/hostelmanagement/fine/show/"),
 
   // Submit leave request
-  requestLeave: (data) =>
-    api.post("/hostelmanagement/create_hostel_leave/", data),
+  requestLeave: (data, config = {}) =>
+    api.post("/hostelmanagement/api/leaves/", data, config),
 
   // Get complaints
-  getComplaints: () => api.get("/hostelmanagement/hostel_complaints/"),
+  getComplaints: () => api.get("/hostelmanagement/register_complaint/"),
+
+  // Submit complaint
+  submitComplaint: (data, config = {}) =>
+    api.post("/hostelmanagement/register_complaint/", data, config),
+
+  // Submit room change request
+  submitRoomChangeRequest: (data, config = {}) =>
+    api.post("/hostelmanagement/room-change-request/", data, config),
+
+  // Get room change requests for student
+  getMyRoomChangeRequests: () =>
+    api.get("/hostelmanagement/room-change-request/"),
+
+  // Get available rooms for the student's hall
+  getAvailableRoomsForStudent: () =>
+    api.get("/hostelmanagement/api/rooms/available/"),
 
   // Request guest room
   requestGuestRoom: (data) =>

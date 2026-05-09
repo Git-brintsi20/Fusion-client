@@ -29,7 +29,7 @@ export default function ViewAttendanceComponent() {
   const [attendanceFile, setAttendanceFile] = useState(null);
   const [error, setError] = useState(null);
 
-  const years = Array.from({ length: 20 }, (_, i) => 2025 - i);
+  const years = Array.from({ length: 20 }, (_, i) => 2026 - i);
   const months = [
     "January",
     "February",

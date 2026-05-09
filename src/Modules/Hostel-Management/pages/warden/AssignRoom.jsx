@@ -13,13 +13,7 @@ import {
   Card,
   Divider,
 } from "@mantine/core";
-import {
-  IconUpload,
-  IconDownload,
-  IconPlus,
-  IconX,
-  IconRefresh,
-} from "@tabler/icons-react";
+import { IconUpload, IconPlus, IconX, IconRefresh } from "@tabler/icons-react";
 import { useState } from "react";
 import { wardenService } from "../../services";
 
@@ -31,6 +25,7 @@ export default function AssignRoomsComponent() {
   const [currentBatch, setCurrentBatch] = useState("");
   const [batchError, setBatchError] = useState("");
   const [alloting, setAlloting] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const handleFileSelect = (event) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -66,43 +61,6 @@ export default function AssignRoomsComponent() {
     );
   };
 
-  const handleDownload = async () => {
-    try {
-      const response = await wardenService.downloadHostelAllotment();
-
-      if (
-        !response ||
-        !response.data.files ||
-        response.data.files.length === 0
-      ) {
-        alert("No files available for download.");
-        return;
-      }
-
-      response.data.files.forEach(async (fileUrl, index) => {
-        try {
-          const fileResponse = await fetch(fileUrl);
-          const blob = await fileResponse.blob();
-          const url = window.URL.createObjectURL(blob);
-
-          const link = document.createElement("a");
-          link.href = url;
-          link.setAttribute("download", `Hostel_Allotment_${index + 1}`);
-          document.body.appendChild(link);
-          link.click();
-
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        } catch (err) {
-          console.error(`Failed to download file ${index + 1}:`, err);
-        }
-      });
-    } catch (error) {
-      console.error("Error fetching file list:", error);
-      alert("Failed to fetch files. Please try again.");
-    }
-  };
-
   const uploadAllFiles = async () => {
     if (files.length === 0) {
       alert("Please select at least one file to upload");
@@ -127,6 +85,7 @@ export default function AssignRoomsComponent() {
               fileName: fileObj.file.name,
               batch: fileObj.batch,
               message: response.data.message,
+              fileUrl: response.data.file,
             });
           }
         } catch (error) {
@@ -143,6 +102,15 @@ export default function AssignRoomsComponent() {
 
       setUploading(false);
       setFiles([]);
+      if (successfulUploads.length > 0) {
+        setUploadedFiles((prev) => [
+          ...successfulUploads.map((upload) => ({
+            ...upload,
+            uploadedAt: new Date().toLocaleString(),
+          })),
+          ...prev,
+        ]);
+      }
 
       if (successfulUploads.length > 0 && failedUploads.length === 0) {
         alert(`All ${successfulUploads.length} files uploaded successfully!`);
@@ -336,25 +304,78 @@ export default function AssignRoomsComponent() {
           <Card shadow="sm" p="lg" radius="md" withBorder>
             <Card.Section withBorder inheritPadding py="xs">
               <Group>
-                <IconDownload size={20} stroke={1.5} color="#228be6" />
-                <Text weight={500}>Download Templates</Text>
+                <IconUpload size={20} stroke={1.5} color="#228be6" />
+                <Text weight={500}>Uploaded Files</Text>
               </Group>
             </Card.Section>
-
-            <Stack align="center" spacing="lg" py={50}>
-              <IconDownload size={40} stroke={1} color="#ADB5BD" />
-              <Text align="center" size="sm" color="dimmed" px="lg">
-                Download the template files for batch allocation
-              </Text>
-              <Button
-                variant="outline"
-                color="blue"
-                leftIcon={<IconDownload size={16} />}
-                onClick={handleDownload}
-              >
-                Download Templates
-              </Button>
-            </Stack>
+            {uploadedFiles.length > 0 ? (
+              <Box py="md" sx={{ maxHeight: "260px", overflowY: "auto" }}>
+                <Stack spacing="xs">
+                  {uploadedFiles.map((upload, index) => (
+                    <Group
+                      key={`${upload.fileName}-${index}`}
+                      position="apart"
+                      p="xs"
+                      sx={(theme) => ({
+                        backgroundColor:
+                          theme.colorScheme === "dark"
+                            ? theme.colors.dark[8]
+                            : theme.colors.gray[0],
+                        borderRadius: theme.radius.sm,
+                      })}
+                    >
+                      <Group spacing="xs">
+                        <Badge color="teal" size="sm" variant="outline">
+                          Uploaded
+                        </Badge>
+                        {upload.fileUrl ? (
+                          <Text
+                            component="a"
+                            href={upload.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            size="sm"
+                            style={{
+                              maxWidth: "160px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {upload.fileName}
+                          </Text>
+                        ) : (
+                          <Text
+                            size="sm"
+                            style={{
+                              maxWidth: "160px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {upload.fileName}
+                          </Text>
+                        )}
+                        <Badge color="blue" size="sm">
+                          {upload.batch}
+                        </Badge>
+                      </Group>
+                      <Text size="xs" color="dimmed">
+                        {upload.uploadedAt}
+                      </Text>
+                    </Group>
+                  ))}
+                </Stack>
+              </Box>
+            ) : (
+              <Stack align="center" spacing="lg" py={50}>
+                <IconUpload size={40} stroke={1} color="#ADB5BD" />
+                <Text align="center" size="sm" color="dimmed" px="lg">
+                  No uploads yet. Uploaded files will appear here.
+                </Text>
+              </Stack>
+            )}
           </Card>
         </Grid.Col>
       </Grid>
